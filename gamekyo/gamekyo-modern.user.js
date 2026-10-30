@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.4.0
+// @version      1.4.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -289,11 +289,35 @@ html.gk #notification-list:not(:empty) {
   max-width: 1400px; box-sizing: border-box; margin: 16px auto 0; padding: 0 20px; display: grid; gap: 8px;
 }
 html.gk .notification {
-  width: auto; display: flex; align-items: center; gap: 8px; justify-content: center; padding: 10px 16px !important;
-  border: 1px solid var(--border) !important; border-radius: var(--radius-sm); background: var(--accent-soft) !important;
-  font-size: 14px; font-weight: 600; color: var(--text);
+  width: auto; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px !important; text-align: left;
+  background: var(--surface) !important; border: 1px solid var(--border) !important; border-left: 4px solid var(--accent) !important;
+  border-radius: var(--radius-sm); box-shadow: var(--shadow); font-size: 14px; color: var(--text); animation: gk-fade .25s ease-out;
 }
-html.gk .notification a { color: var(--accent) !important; }
+html.gk .notification > img { display: none; }
+html.gk .gk-notif-icon {
+  flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+}
+html.gk .gk-notif-icon svg { width: 18px; height: 18px; }
+html.gk .gk-notif-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+html.gk .gk-notif-title { font-weight: 600; line-height: 1.35; color: var(--text) !important; }
+html.gk .gk-notif-title::first-letter { text-transform: uppercase; }
+html.gk .gk-notif-title:hover { color: var(--accent) !important; }
+html.gk .gk-notif-members { display: flex; flex-wrap: wrap; gap: 6px; }
+html.gk .gk-notif-members a {
+  padding: 3px 10px; border-radius: 999px; font-size: 13px; background: var(--surface-2); border: 1px solid var(--border);
+}
+html.gk .gk-notif-members a:hover { border-color: var(--orange); }
+html.gk .notification-cross { flex: none; margin-left: auto; }
+html.gk .notification-cross a { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
+html.gk .notification-cross a:hover { background: var(--surface-3); }
+html.gk .notification-cross img { width: 12px; height: 12px; margin: 0; }
+html.gk .notification:not(:has(.gk-notif-body)) { justify-content: center; }
+#gk-messages { position: relative; }
+#gk-messages.gk-has-notif::after {
+  content: ""; position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--red); box-shadow: 0 0 0 2px var(--surface);
+}
 
 /* ---------- Layout ---------- */
 html.gk #main-container {
@@ -1468,7 +1492,9 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
       if (e.target.closest('.post-link a')) setTimeout(() => { setOpen(true); $('#account_post')?.focus(); }, 50);
     });
 
-    $('.gk-inner', bar).insertBefore(wrap, $('#gk-theme', bar));
+    // Ordre : écrire, messages, thème, avatar (juste avant le menu burger sur mobile)
+    wrap.insertBefore($('#gk-theme', bar), btn);
+    $('.gk-inner', bar).insertBefore(wrap, $('#gk-burger', bar));
     root.classList.add('gk-logged');
   }
 
@@ -1555,6 +1581,39 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     });
   }
 
+  // Notifications du site : icône, texte, membres en pastilles, bouton fermer
+  function enhanceNotifications(ctx) {
+    $$('.notification:not([data-gk])', ctx).forEach((n) => {
+      n.dataset.gk = '1';
+      const members = $$(':scope > a.member', n);
+      const title = $$(':scope > a', n).find((a) => !a.classList.contains('member'));
+      if (!title) return;
+      const icon = h(`<span class="gk-notif-icon">${ICONS.mail}</span>`);
+      const body = h('<div class="gk-notif-body"></div>');
+      title.classList.add('gk-notif-title');
+      title.textContent = title.textContent.trim().replace(/\s*de$/, '');
+      body.appendChild(title);
+      if (members.length) {
+        const list = h('<div class="gk-notif-members"></div>');
+        members.forEach((m) => list.appendChild(m));
+        body.appendChild(list);
+      }
+      // Retire les séparateurs texte restants (« : », « , »)
+      Array.from(n.childNodes).forEach((c) => { if (c.nodeType === 3) c.remove(); });
+      n.prepend(icon, body);
+    });
+    updateNotifBadge();
+  }
+
+  const updateNotifBadge = () => {
+    const visible = $$('#notification-list .notification').some((n) => n.isConnected && n.offsetParent !== null);
+    $('#gk-messages')?.classList.toggle('gk-has-notif', visible);
+  };
+  // La croix du site masque la notification en différé : on remet le badge à jour ensuite
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.notification-cross')) setTimeout(updateNotifBadge, 800);
+  });
+
   function enhanceVotes(ctx) {
     $$('.votes-system-frame:not([data-gk])', ctx).forEach((frame) => {
       frame.dataset.gk = '1';
@@ -1564,6 +1623,7 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
   }
 
   function enhance(ctx = document) {
+    enhanceNotifications(ctx);
     enhanceVotes(ctx);
     enhanceImages(ctx);
     enhanceTiles(ctx);

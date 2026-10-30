@@ -2,6 +2,16 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.4.1 — Notifications
+
+### Nouveautés
+- Notifications (requêtes, messages) en carte : icône, texte, membres en pastilles cliquables, bouton fermer.
+- Pastille rouge sur l'icône Messages tant qu'une notification est affichée.
+- Avatar du compte placé juste avant le menu burger (ordre : écrire, messages, thème, avatar).
+
+### Corrections
+- Notification centrée et mal découpée sur mobile.
+
 ## 1.4.0 — Réglages
 
 ### Nouveautés
