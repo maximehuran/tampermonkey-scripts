@@ -7,6 +7,25 @@ Modernise [gamekyo.com](https://www.gamekyo.com/) directement dans le navigateur
 <p><img src="screenshots/hero.jpg" alt="Gamekyo Modern : mode sombre sur ordinateur, mode clair sur mobile" width="700"></p>
 <p><img src="screenshots/avant-apres.jpg" alt="Gamekyo avant / après le script" width="700"></p>
 
+## Installation
+
+1. Installer l'extension Tampermonkey :
+   - **Firefox** (ordinateur et Android) : [addons.mozilla.org](https://addons.mozilla.org/fr/firefox/addon/tampermonkey/) ;
+   - **Chrome, Edge, Safari, Opera** : [tampermonkey.net](https://www.tampermonkey.net/).
+2. Sur Chrome et Edge uniquement : dans `chrome://extensions` (ou `edge://extensions`), activer le **Mode développeur**, et **Autoriser les scripts utilisateur** dans les détails de Tampermonkey.
+3. Ouvrir le **[lien d'installation](https://raw.githubusercontent.com/maximehuran/tampermonkey-scripts/main/gamekyo/gamekyo-modern.user.js)** puis cliquer sur **Installer**.
+4. Recharger Gamekyo.
+
+## Mettre à jour
+
+<p><img src="screenshots/mise-a-jour.jpg" alt="Mettre à jour le script dans Tampermonkey" width="700"></p>
+
+- **Automatiquement** : Tampermonkey vérifie les mises à jour **tous les jours** et les installe seul (réglages par défaut, visibles dans *Tableau de bord → Paramètres → Mise à jour des userscripts* : « Intervalle de vérification » et « Installation automatique »).
+- **Tout de suite** : icône Tampermonkey → **Utilitaires** → **Vérifier les mises à jour d'userscripts**, puis recharger Gamekyo.
+- **Vérifier sa version** : icône Tampermonkey → **Gamekyo Modern ›**, ou le Tableau de bord. La dernière version est indiquée dans le [Changelog](CHANGELOG.md) et les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
+
+> ⚠️ Les mises à jour automatiques ne fonctionnent que si le script a été installé avec le **lien d'installation** ci-dessus. S'il a été collé à la main dans Tampermonkey, rouvrez une fois ce lien et cliquez sur **Mettre à jour** (ou **Réinstaller**) : les mises à jour suivantes seront ensuite automatiques.
+
 ## Fonctionnalités
 
 ### Apparence
