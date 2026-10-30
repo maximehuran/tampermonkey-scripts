@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.4.1
+// @version      1.4.2
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -734,6 +734,50 @@ html.gk .account-post-textarea {
 }
 html.gk .form-textarea { padding: 10px 0 0 !important; height: auto; }
 html.gk .form-textarea-field { color: var(--text-soft); }
+
+/* Messagerie privée */
+html.gk .message-post-list { padding: 0 !important; }
+html.gk #message-list .message-post-box { padding: 16px 0 !important; border-top: 1px solid var(--border); margin: 0 !important; }
+html.gk #message-list .message-post-box:first-child { border-top: 0; padding-top: 4px !important; }
+html.gk #message-list:empty::before { content: "Aucun message pour le moment."; display: block; padding: 24px 0; text-align: center; color: var(--muted); }
+html.gk .message-post-information { border-radius: 4px 14px 14px 14px; }
+html.gk .message-post-information.orange-background { border-left: 3px solid var(--orange) !important; background: color-mix(in srgb, var(--orange) 7%, var(--surface-2)) !important; }
+html.gk .message-post-name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: 13px !important; }
+html.gk .message-post-name .member { font-size: 14.5px; }
+html.gk .message-post-name img[src*="new.gif"] { display: none; }
+html.gk .message-post-name:has(img[src*="new.gif"])::after {
+  content: "Nouveau"; margin-left: auto; padding: 2px 9px; border-radius: 999px; background: var(--orange); color: #fff;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+}
+html.gk .message-post-overview { font-size: 15px !important; font-weight: 700; color: var(--text) !important; margin-top: 4px; }
+html.gk .gk-msg-text {
+  margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border);
+  font-size: 14.5px; line-height: 1.6; color: var(--text-soft); overflow-wrap: anywhere;
+}
+html.gk .gk-msg-text img.gk-smiley { vertical-align: middle; }
+html.gk .gk-mention { color: var(--accent); font-weight: 600; }
+html.gk .message-post-link { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: 0 !important; text-align: left; }
+html.gk .message-post-link img { display: none; }
+html.gk .message-post-link a {
+  font-size: 13px !important; font-weight: 600; padding: 7px 14px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-soft) !important;
+}
+html.gk .message-post-link a:hover { border-color: var(--accent); color: var(--accent) !important; }
+html.gk .message-post-link a.gk-msg-primary { background: var(--accent); border-color: var(--accent); color: #fff !important; }
+html.gk .message-post-link a.gk-msg-primary:hover { filter: brightness(1.1); color: #fff !important; }
+html.gk .message-post-link a.gk-msg-danger:hover { border-color: var(--red); color: var(--red) !important; }
+html.gk .gk-title-action {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  background: var(--accent); color: #fff !important; font-size: 12.5px; letter-spacing: 0; text-transform: none; white-space: nowrap;
+}
+html.gk .gk-title-action svg { width: 14px; height: 14px; }
+html.gk .gk-title-action:hover { filter: brightness(1.1); }
+@media (max-width: 560px) {
+  html.gk .message-post-box { gap: 10px; }
+  html.gk .message-post-avatar img { width: 38px !important; height: 38px !important; }
+  html.gk .message-post-information { padding: 10px 12px !important; }
+  html.gk .message-post-link a { flex: 1 1 auto; text-align: center; }
+}
 
 /* ---------- Avis de lecteurs ---------- */
 html.gk #column-1 > .box-frame > .box-title + .box-container > .article-container { border: 0 !important; box-shadow: none; margin: 0 !important; border-radius: 0; }
@@ -1614,6 +1658,64 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     if (e.target.closest('.notification-cross')) setTimeout(updateNotifBadge, 800);
   });
 
+  // Smileys et @mentions dans un texte déjà rendu (messages privés)
+  function decorateText(el) {
+    const re = new RegExp(`(?<![\\w.])(@[\\w-]+)|(${SMILEY_RE})`, 'g');
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) if (!walker.currentNode.parentElement.closest('a')) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const text = node.textContent;
+      re.lastIndex = 0;
+      if (!re.test(text)) return;
+      re.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      let m;
+      while ((m = re.exec(text))) {
+        frag.append(text.slice(last, m.index));
+        if (m[1]) {
+          const span = document.createElement('span');
+          span.className = 'gk-mention';
+          span.textContent = m[1];
+          frag.append(span);
+        } else {
+          const img = document.createElement('img');
+          img.src = smileyUrl(SMILEYS.find(([c]) => c === m[2])[1]);
+          img.className = 'gk-smiley';
+          img.alt = m[2];
+          frag.append(img);
+        }
+        last = m.index + m[0].length;
+      }
+      frag.append(text.slice(last));
+      node.replaceWith(frag);
+    });
+  }
+
+  function enhanceMessages(ctx) {
+    $$('.message-post-box:not([data-gk])', ctx).forEach((box) => {
+      box.dataset.gk = '1';
+      const info = $('.message-post-information', box);
+      if (!info) return;
+      $$(':scope > div:not([class]), :scope > .message-post-text', info).forEach((t) => { t.classList.add('gk-msg-text'); decorateText(t); });
+      const links = $('.message-post-link', info);
+      if (links) {
+        Array.from(links.childNodes).forEach((c) => { if (c.nodeType === 3) c.remove(); });
+        $$('a', links).forEach((a, i) => {
+          const href = a.getAttribute('href') || '';
+          if (/ignore|delete|remove/i.test(href)) a.classList.add('gk-msg-danger');
+          else if (i === 0) a.classList.add('gk-msg-primary');
+        });
+      }
+    });
+    // Bouton « Nouveau message » dans l'en-tête de la boîte de réception
+    const inboxTitle = $('.box-frame:has(#message-list) > .box-title', ctx);
+    if (inboxTitle && !$('.gk-title-action', inboxTitle)) {
+      inboxTitle.appendChild(h(`<a class="gk-title-action" href="/new_message.html">${ICONS.blog}<span>Nouveau message</span></a>`));
+    }
+  }
+
   function enhanceVotes(ctx) {
     $$('.votes-system-frame:not([data-gk])', ctx).forEach((frame) => {
       frame.dataset.gk = '1';
@@ -1624,6 +1726,7 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
 
   function enhance(ctx = document) {
     enhanceNotifications(ctx);
+    enhanceMessages(ctx);
     enhanceVotes(ctx);
     enhanceImages(ctx);
     enhanceTiles(ctx);

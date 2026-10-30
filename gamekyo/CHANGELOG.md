@@ -2,6 +2,18 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.4.2 — Messagerie
+
+### Nouveautés
+- Messages privés en cartes : badge « Nouveau » et liseré orange pour les non lus, sujet mis en avant, aperçu du texte encadré.
+- Smileys (`:good:`, `:D`…) et @mentions affichés dans les messages au lieu du code brut.
+- Actions en boutons (« Répondre » en principal, « Ignorer » en secondaire), pleine largeur sur mobile.
+- Bouton « Nouveau message » dans l'en-tête de la boîte de réception, message affiché quand la boîte est vide.
+
+### Corrections
+- Petits liens d'action avec icônes GIF difficiles à toucher sur mobile.
+- Espace vide en bas de la liste des messages.
+
 ## 1.4.1 — Notifications
 
 ### Nouveautés
