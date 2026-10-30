@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.3.0
+// @version      1.4.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -25,13 +25,40 @@
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
   const savedTheme = () => localStorage.getItem(THEME_KEY);
   const isDark = () => (savedTheme() ? savedTheme() === 'dark' : prefersDark.matches);
+  // Quand notre mode sombre est actif, on demande à Dark Reader de ne pas assombrir une seconde fois
+  const darkReaderLock = document.createElement('meta');
+  darkReaderLock.name = 'darkreader-lock';
   const applyTheme = () => {
     root.classList.toggle('gk-dark', isDark());
     root.style.colorScheme = isDark() ? 'dark' : 'light';
+    if (isDark()) (document.head || root).appendChild(darkReaderLock);
+    else darkReaderLock.remove();
   };
   root.classList.add('gk');
   applyTheme();
   prefersDark.addEventListener('change', () => { if (!savedTheme()) applyTheme(); });
+
+  /* ------------------------------------------------------------------ */
+  /* Réglages utilisateur (panneau ⚙︎ dans la barre du haut)            */
+  /* ------------------------------------------------------------------ */
+  const SETTINGS_KEY = 'gk-modern-settings';
+  const NAV_KEYS = ['home', 'news', 'blog', 'video', 'review'];
+  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hiddenNav: [], textSize: 'm', customCss: '' };
+  let settings;
+  try { settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') }; } catch { settings = { ...DEFAULTS }; }
+  const saveSettings = () => localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+
+  const customStyle = document.createElement('style');
+  customStyle.id = 'gk-custom-css';
+  const applySettings = () => {
+    root.classList.toggle('gk-hide-left', settings.hideLeft);
+    root.classList.toggle('gk-hide-right', settings.hideRight);
+    root.dataset.gkLogo = settings.logo;
+    root.dataset.gkText = settings.textSize;
+    NAV_KEYS.forEach((k) => root.classList.toggle(`gk-nav-hide-${k}`, settings.hiddenNav.includes(k)));
+    customStyle.textContent = settings.customCss;
+  };
+  applySettings();
 
   /* ------------------------------------------------------------------ */
   /* Styles                                                             */
@@ -119,14 +146,26 @@ html.gk #header, html.gk body > #main-menu-lign, html.gk body > #sub-menu-lign {
   display: flex; align-items: center; gap: 18px;
 }
 /* Logo : seul élément qui garde les couleurs historiques (jaune sur bleu) */
-#gk-topbar .gk-logo {
-  display: flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 10px; white-space: nowrap;
+#gk-topbar .gk-logo { display: flex; align-items: center; flex: none; }
+#gk-topbar .gk-logo > * { display: none; }
+html[data-gk-logo="classic"] #gk-topbar .gk-logo-classic,
+html[data-gk-logo="minimal"] #gk-topbar .gk-logo-min,
+html[data-gk-logo="original"] #gk-topbar .gk-logo-img { display: flex; }
+#gk-topbar .gk-logo-img { height: 38px; width: auto; border-radius: 8px; }
+#gk-topbar .gk-logo-min { align-items: center; gap: 8px; font-size: 22px; font-weight: 800; letter-spacing: -.03em; color: var(--text); white-space: nowrap; }
+#gk-topbar .gk-logo-min b { color: var(--accent); }
+#gk-topbar .gk-logo-mark {
+  width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #5aaef2, #2f6fd1); color: #fff; font-size: 16px; font-weight: 800;
+}
+#gk-topbar .gk-logo-classic {
+  align-items: center; height: 38px; padding: 0 16px; border-radius: 10px; white-space: nowrap;
   background: linear-gradient(180deg, #6da2d5, #2f6aa8); box-shadow: inset 0 -3px 0 #87b9eb, 0 4px 12px rgba(47, 106, 168, .3);
   font-size: 21px; font-weight: 900; font-style: italic; letter-spacing: .02em; text-transform: uppercase;
   color: #ffd319 !important; text-shadow: 0 2px 0 #1d4f80, 0 0 1px #1d4f80;
   transition: filter .15s;
 }
-#gk-topbar .gk-logo:hover { filter: brightness(1.08); }
+#gk-topbar .gk-logo:hover > * { filter: brightness(1.08); }
 #gk-menu { display: contents; }
 #gk-topbar .gk-spacer { display: none; flex: 1; }
 #gk-nav { display: flex; align-items: center; gap: 4px; }
@@ -1030,6 +1069,92 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   #gk-topbar .gk-inner { gap: 6px; }
   html.gk .box-frame, html.gk .box-frame-external, html.gk .box-container-external-new { margin-bottom: 16px !important; }
 }
+
+/* ---------- Réglages ---------- */
+#gk-settings-btn span { display: none; }
+#gk-settings {
+  position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 16px;
+  background: rgba(5, 8, 12, .55); backdrop-filter: blur(4px); font-family: var(--font); animation: gk-fade .15s ease-out;
+}
+@keyframes gk-fade { from { opacity: 0; } }
+.gk-settings-card {
+  width: min(560px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden;
+}
+.gk-settings-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.gk-settings-head h2 { font-size: 19px; font-weight: 800; margin: 0; color: var(--text); }
+.gk-settings-body { overflow-y: auto; padding: 4px 20px 12px; }
+.gk-settings-body section { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.gk-settings-body section:last-child { border-bottom: 0; }
+.gk-settings-body h3 { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.gk-field { margin-bottom: 14px; }
+.gk-field:last-child { margin-bottom: 0; }
+.gk-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.gk-hint { font-size: 12.5px; line-height: 1.5; color: var(--muted); margin: 8px 0 0; }
+.gk-seg { display: flex; padding: 3px; gap: 3px; border-radius: 12px; background: var(--surface-3); }
+.gk-seg button {
+  flex: 1; border: 0; padding: 8px 10px; border-radius: 9px; cursor: pointer; background: transparent;
+  font: 600 13.5px var(--font); color: var(--text-soft); transition: background .15s, color .15s;
+}
+.gk-seg button:hover { color: var(--text); }
+.gk-seg button.gk-on { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); }
+.gk-toggle { display: flex; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; }
+.gk-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.gk-switch { flex: none; width: 40px; height: 24px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--border); position: relative; transition: background .2s; }
+.gk-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+.gk-toggle input:checked + .gk-switch { background: var(--accent); border-color: var(--accent); }
+.gk-toggle input:checked + .gk-switch::after { transform: translateX(16px); }
+.gk-toggle input:focus-visible + .gk-switch { box-shadow: 0 0 0 3px var(--accent-soft); }
+.gk-toggle-text { font-size: 14px; font-weight: 600; display: flex; flex-direction: column; }
+.gk-toggle-text small { font-size: 12.5px; font-weight: 400; color: var(--muted); }
+.gk-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.gk-checks label {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface-2); font-size: 13.5px; font-weight: 600; color: var(--text-soft); text-transform: capitalize;
+}
+.gk-checks label:has(input:checked) { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.gk-checks input { accent-color: var(--accent); }
+#gk-settings textarea {
+  width: 100% !important; min-height: 110px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace !important;
+}
+.gk-settings-foot { display: flex; justify-content: space-between; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--surface-2); }
+.gk-btn, .gk-btn-ghost { border-radius: 999px; padding: 9px 18px; font: 700 14px var(--font); cursor: pointer; }
+.gk-btn { border: 0; background: var(--accent); color: #fff; }
+.gk-btn-ghost { border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); }
+.gk-btn-ghost:hover { color: var(--red); border-color: var(--red); }
+
+/* Rubriques masquées */
+html.gk-nav-hide-home #gk-nav a[data-key="home"], html.gk-nav-hide-news #gk-nav a[data-key="news"],
+html.gk-nav-hide-blog #gk-nav a[data-key="blog"], html.gk-nav-hide-video #gk-nav a[data-key="video"],
+html.gk-nav-hide-review #gk-nav a[data-key="review"] { display: none; }
+
+/* Taille du texte des articles */
+html[data-gk-text="l"] .article-container .medium-text, html[data-gk-text="l"] .gk-preview-body { font-size: 19px !important; }
+html[data-gk-text="xl"] .article-container .medium-text, html[data-gk-text="xl"] .gk-preview-body { font-size: 21px !important; }
+html[data-gk-text="l"] .comment-text { font-size: 16.5px !important; }
+html[data-gk-text="xl"] .comment-text { font-size: 18px !important; }
+
+/* Colonnes masquées */
+html.gk.gk-hide-left #main-container > #column-0, html.gk.gk-hide-right #main-container > #column-2 { display: none !important; }
+html.gk.gk-hide-right #main-container:has(> #column-2) { grid-template-columns: 300px minmax(0, 1fr); }
+html.gk.gk-hide-left #main-container:has(> #column-2) { grid-template-columns: minmax(0, 1fr) 320px; }
+html.gk.gk-hide-left #main-container > #column-1 { grid-column: 1; }
+html.gk.gk-hide-left #main-container > #column-2 { grid-column: 2; }
+html.gk.gk-hide-left #main-container:has(> #column-4) { grid-template-columns: minmax(0, 1fr); }
+html.gk.gk-hide-left #main-container > #column-4 { grid-column: 1; }
+html.gk.gk-hide-left.gk-hide-right #main-container:has(> #column-2) { grid-template-columns: minmax(0, 1fr); }
+html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !important; max-width: 980px; justify-self: center; }
+@media (max-width: 1240px) {
+  html.gk.gk-hide-right #main-container:has(> #column-2) { grid-template-columns: minmax(0, 1fr); }
+  html.gk.gk-hide-left #main-container > #column-2 { grid-row: 2; }
+  html.gk.gk-hide-left #main-container:not(:has(> #main-container-header)) > #column-2 { grid-row: 1; }
+}
+@media (max-width: 860px) {
+  #gk-settings-btn { width: auto; height: auto; border-radius: var(--radius-sm); justify-content: flex-start; display: flex; gap: 12px; padding: 12px 14px; font: 600 16px var(--font); }
+  #gk-settings-btn span { display: inline; }
+  html.gk #main-container, html.gk.gk-hide-left #main-container, html.gk.gk-hide-right #main-container { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.gk *, html.gk *::before, html.gk *::after { transition: none !important; }
 }
@@ -1039,6 +1164,7 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   style.id = 'gk-modern-style';
   style.textContent = CSS;
   (document.head || root).appendChild(style);
+  (document.head || root).appendChild(customStyle);
 
   // Le site n'a pas de meta viewport : indispensable pour le rendu mobile
   const viewport = document.createElement('meta');
@@ -1072,6 +1198,8 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     stream: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5"/></svg>',
     image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
     logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     dot: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/></svg>',
   };
 
@@ -1101,7 +1229,11 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     const bar = h(`
       <header id="gk-topbar">
         <div class="gk-inner">
-          <a class="gk-logo" href="/index.html" title="Gamekyo">Gamekyo</a>
+          <a class="gk-logo" href="/index.html" title="Gamekyo">
+            <span class="gk-logo-classic">Gamekyo</span>
+            <span class="gk-logo-min"><span class="gk-logo-mark">G</span><span class="gk-logo-text">Game<b>kyo</b></span></span>
+            <img class="gk-logo-img" src="/images/4.jpg" alt="Gamekyo" />
+          </a>
           <div id="gk-menu">
             <nav id="gk-nav"></nav>
             <form id="gk-search" method="post" action="/search.html" role="search">
@@ -1109,6 +1241,7 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
               <input type="search" name="search" placeholder="Rechercher un jeu, une news…" autocomplete="off" />
             </form>
             <div id="gk-account"></div>
+            <button id="gk-settings-btn" class="gk-icon-btn" type="button" title="Réglages Gamekyo Modern">${ICONS.settings}<span>Réglages</span></button>
           </div>
           <div class="gk-spacer"></div>
           <button id="gk-theme" class="gk-icon-btn" type="button" title="Basculer le mode sombre">${ICONS.sun}${ICONS.moon}</button>
@@ -1119,7 +1252,7 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     const nav = $('#gk-nav', bar);
     $$('#main-menu-lign a').forEach((a) => {
       const key = navKey(a.getAttribute('href') || '');
-      const link = h(`<a href="${a.getAttribute('href')}">${ICONS[key] || ''}<span></span></a>`);
+      const link = h(`<a href="${a.getAttribute('href')}" data-key="${key}">${ICONS[key] || ''}<span></span></a>`);
       $('span', link).textContent = a.textContent.trim();
       if (key && key === section) link.classList.add('gk-active');
       nav.appendChild(link);
@@ -1145,9 +1278,126 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
       applyTheme();
     });
     $('#gk-burger', bar).addEventListener('click', () => root.classList.toggle('gk-menu-open'));
+    $('#gk-settings-btn', bar).addEventListener('click', () => { root.classList.remove('gk-menu-open'); openSettings(); });
     $('#gk-search', bar).addEventListener('submit', (e) => {
       if (!$('input', e.currentTarget).value.trim()) e.preventDefault();
     });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Panneau de réglages                                                */
+  /* ------------------------------------------------------------------ */
+  function openSettings() {
+    if ($('#gk-settings')) return;
+    const navLabels = {};
+    $$('#gk-nav a[data-key]').forEach((a) => { navLabels[a.dataset.key] = a.textContent.trim(); });
+    const themeValue = savedTheme() || 'auto';
+
+    const seg = (name, value, options) => `
+      <div class="gk-seg" data-name="${name}">
+        ${options.map(([v, label]) => `<button type="button" data-value="${v}" class="${v === value ? 'gk-on' : ''}">${label}</button>`).join('')}
+      </div>`;
+    const toggle = (name, label, checked, hint = '') => `
+      <label class="gk-toggle"><input type="checkbox" data-name="${name}" ${checked ? 'checked' : ''}>
+        <span class="gk-switch"></span><span class="gk-toggle-text">${label}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
+
+    const modal = h(`
+      <div id="gk-settings" role="dialog" aria-modal="true" aria-labelledby="gk-settings-title">
+        <div class="gk-settings-card">
+          <div class="gk-settings-head">
+            <h2 id="gk-settings-title">Réglages</h2>
+            <button type="button" class="gk-icon-btn gk-settings-close" title="Fermer">${ICONS.close}</button>
+          </div>
+          <div class="gk-settings-body">
+            <section>
+              <h3>Apparence</h3>
+              <div class="gk-field"><span class="gk-label">Thème</span>
+                ${seg('theme', themeValue, [['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']])}
+                <p class="gk-hint">Vous utilisez Dark Reader ? Choisissez « Clair » et laissez-le gérer le sombre. En « Sombre », le script met Dark Reader en pause sur Gamekyo pour éviter un double assombrissement.</p>
+              </div>
+              <div class="gk-field"><span class="gk-label">Logo</span>
+                ${seg('logo', settings.logo, [['classic', 'Classique'], ['minimal', 'Minimal'], ['original', "D'origine"]])}
+              </div>
+              <div class="gk-field"><span class="gk-label">Taille du texte des articles</span>
+                ${seg('textSize', settings.textSize, [['m', 'Normale'], ['l', 'Grande'], ['xl', 'Très grande']])}
+              </div>
+            </section>
+            <section>
+              <h3>Mise en page</h3>
+              ${toggle('hideLeft', 'Masquer la colonne de gauche', settings.hideLeft, 'Blogs, news liées, profil…')}
+              ${toggle('hideRight', 'Masquer la colonne de droite', settings.hideRight, 'News populaires, avis, fiche du jeu, pubs…')}
+              <div class="gk-field"><span class="gk-label">Rubriques du menu</span>
+                <div class="gk-checks">
+                  ${NAV_KEYS.filter((k) => navLabels[k]).map((k) => `<label><input type="checkbox" data-nav="${k}" ${settings.hiddenNav.includes(k) ? '' : 'checked'}> ${navLabels[k]}</label>`).join('')}
+                </div>
+              </div>
+            </section>
+            <section>
+              <h3>Avancé</h3>
+              <div class="gk-field"><span class="gk-label">CSS personnalisé</span>
+                <textarea data-name="customCss" spellcheck="false" placeholder="/* Vos propres règles, appliquées en dernier. Exemple : */\n#gk-topbar { background: #6da2d5; }"></textarea>
+                <p class="gk-hint">Appliqué en direct et conservé dans ce navigateur.</p>
+              </div>
+            </section>
+          </div>
+          <div class="gk-settings-foot">
+            <button type="button" class="gk-btn-ghost" data-action="reset">Réinitialiser</button>
+            <button type="button" class="gk-btn" data-action="close">Terminé</button>
+          </div>
+        </div>
+      </div>`);
+    $('textarea[data-name="customCss"]', modal).value = settings.customCss;
+
+    const update = (patch) => { Object.assign(settings, patch); saveSettings(); applySettings(); };
+
+    $$('.gk-seg', modal).forEach((group) => {
+      group.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-value]');
+        if (!btn) return;
+        $$('button', group).forEach((b) => b.classList.toggle('gk-on', b === btn));
+        const { name } = group.dataset;
+        const value = btn.dataset.value;
+        if (name === 'theme') {
+          if (value === 'auto') localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, value);
+          applyTheme();
+        } else {
+          update({ [name]: value });
+        }
+      });
+    });
+    $$('input[data-name]', modal).forEach((input) => {
+      input.addEventListener('change', () => update({ [input.dataset.name]: input.checked }));
+    });
+    $$('input[data-nav]', modal).forEach((input) => {
+      input.addEventListener('change', () => {
+        update({ hiddenNav: $$('input[data-nav]', modal).filter((i) => !i.checked).map((i) => i.dataset.nav) });
+      });
+    });
+    let cssTimer;
+    $('textarea[data-name="customCss"]', modal).addEventListener('input', (e) => {
+      clearTimeout(cssTimer);
+      cssTimer = setTimeout(() => update({ customCss: e.target.value }), 250);
+    });
+
+    const close = () => { modal.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    $('.gk-settings-close', modal).addEventListener('click', close);
+    $('[data-action="close"]', modal).addEventListener('click', close);
+    $('[data-action="reset"]', modal).addEventListener('click', () => {
+      if (!confirm('Revenir aux réglages par défaut ?')) return;
+      settings = { ...DEFAULTS, hiddenNav: [] };
+      saveSettings();
+      localStorage.removeItem(THEME_KEY);
+      applySettings();
+      applyTheme();
+      close();
+      openSettings();
+    });
+
+    document.body.appendChild(modal);
+    $('.gk-seg button.gk-on', modal)?.focus();
   }
 
   /* ------------------------------------------------------------------ */
@@ -1581,8 +1831,9 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   function init() {
     // Notre feuille passe après celles du site dans la cascade
     document.head.appendChild(style);
-
+    document.head.appendChild(customStyle); // le CSS personnalisé passe en dernier
     document.head.appendChild(viewport);
+    if (darkReaderLock.isConnected) document.head.appendChild(darkReaderLock);
 
     // Le champ de recherche de la colonne de gauche fait doublon avec la barre du haut
     const oldSearch = $('#search-form');
