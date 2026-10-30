@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.1.0
+// @version      1.2.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -854,6 +854,74 @@ html.gk .page-navigation a { padding: 6px 10px; border-radius: 8px; }
 html.gk .page-navigation a:hover { background: var(--surface-2); }
 html.gk #website-list, html.gk #email-list, html.gk #location-list, html.gk #file-list { margin: 8px 0; }
 
+/* ---------- Rédaction : modification sur place, aperçu ---------- */
+/* Le site surligne en crème (illisible en sombre) : on remplace par un survol discret */
+html.gk .gk-editable, html.gk [title="click to edit"] {
+  background-color: transparent !important; border-radius: 6px; cursor: pointer;
+  transition: box-shadow .15s, background-color .15s;
+}
+html.gk .gk-editable:hover, html.gk [title="click to edit"]:hover {
+  background-color: var(--accent-soft) !important; box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 5px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+html.gk .big-title .gk-editable:hover::after { content: " ✎"; color: var(--accent); font-size: .7em; }
+html.gk .inplaceeditor-form { display: block; margin: 6px 0 12px; }
+html.gk .inplaceeditor-form input.editor_field { width: 100%; box-sizing: border-box; }
+html.gk .big-title .inplaceeditor-form input.editor_field { font-size: 24px; font-weight: 700; padding: 10px 14px; }
+html.gk .inplaceeditor-form textarea.editor_field { font-size: 15px; line-height: 1.6; }
+html.gk .inplaceeditor-form a { margin-left: 8px; color: var(--muted) !important; font-size: 13px; }
+html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: none !important; }
+html.gk .article-source .gk-editable { color: var(--muted); }
+
+/* Barre d'outils BBCode */
+html.gk .form-textarea-field:has(> .tagSelection) {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; margin-bottom: 8px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+html.gk .tagSelection { background: var(--surface) !important; color: var(--text) !important; }
+html.gk .tagSelection:hover { background: var(--accent-soft) !important; }
+html.gk .tagSelection:hover a, html.gk .tagSelection a:hover { color: var(--accent) !important; }
+html.gk #hover { color: var(--text-soft) !important; }
+html.gk .gk-smiley-btn { position: relative; }
+html.gk .gk-smiley-pop {
+  display: none; position: absolute; left: 0; top: calc(100% + 6px); z-index: 60; width: 248px; padding: 8px;
+  grid-template-columns: repeat(7, 1fr); gap: 2px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+}
+html.gk .gk-smiley-btn.gk-open .gk-smiley-pop { display: grid; }
+html.gk .gk-smiley-pop button { border: 0; background: none; padding: 4px; border-radius: 6px; cursor: pointer; display: grid; place-items: center; }
+html.gk .gk-smiley-pop button:hover { background: var(--surface-3); }
+html.gk .gk-counter { font-size: 12px; color: var(--muted); text-align: right; margin-top: 4px; }
+html.gk .gk-counter.gk-warn { color: var(--orange); font-weight: 600; }
+html.gk #add-article-form input[type="text"] { width: 100%; }
+
+/* Aperçu en direct */
+html.gk .gk-preview { flex: 1 1 100%; width: 100%; box-sizing: border-box; margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); overflow: hidden; text-align: left; }
+html.gk .gk-preview.gk-compact.gk-empty { display: none; }
+html.gk .gk-preview-head {
+  display: flex; justify-content: space-between; align-items: center; padding: 7px 14px;
+  background: var(--surface-2); border-bottom: 1px solid var(--border);
+  font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+}
+html.gk .gk-preview-head small { font-weight: 500; letter-spacing: 0; text-transform: none; }
+html.gk .gk-preview-body {
+  padding: 16px 18px; font-size: 16px; line-height: 1.7; color: var(--text-soft);
+  overflow-wrap: anywhere; max-height: 70vh; overflow-y: auto;
+}
+html.gk .gk-compact .gk-preview-body { font-size: 15px; padding: 12px 14px; max-height: 320px; }
+html.gk .gk-preview.gk-empty .gk-preview-body::before { content: "L'aperçu de votre texte s'affichera ici."; color: var(--muted); font-style: italic; }
+html.gk .gk-preview-body b { color: var(--text); }
+html.gk .gk-preview-body a { color: var(--accent) !important; text-decoration: underline; text-underline-offset: 3px; }
+html.gk .gk-preview-body img { max-width: 100%; height: auto; border-radius: 8px; vertical-align: middle; }
+html.gk .gk-preview-body img.gk-smiley { border-radius: 0; }
+html.gk .gk-preview-body iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; display: block; margin: 8px 0; }
+html.gk .gk-preview-body .spoil:hover { background: var(--surface-3) !important; color: var(--text) !important; }
+html.gk .gk-quote {
+  margin: 10px 0; padding: 10px 16px; border-left: 4px solid var(--accent); background: var(--surface-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+html.gk .gk-quote-author { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+html.gk .box-frame:has(#add-article-form) { overflow: visible; }
+
 /* ---------- Footer ---------- */
 html.gk #footer {
   max-width: 1400px; box-sizing: border-box; margin: 40px auto 0 !important; padding: 28px 20px 10px !important;
@@ -1223,13 +1291,195 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     });
   }
 
+  // Éléments modifiables sur place (titre, texte d'un article de son blog, profil…)
+  function enhanceInPlace(ctx) {
+    $$('[title="click to edit"]', ctx).forEach((el) => {
+      el.classList.add('gk-editable');
+      el.title = 'Cliquer pour modifier';
+    });
+  }
+
   function enhance(ctx = document) {
     enhanceImages(ctx);
     enhanceTiles(ctx);
     enhanceScores(ctx);
     enhanceSpoilers(ctx);
     enhanceLinks(ctx);
+    enhanceInPlace(ctx);
+    enhanceEditors(ctx);
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Éditeur BBCode : aperçu en direct, raccourcis, smileys             */
+  /* ------------------------------------------------------------------ */
+  const SMILEYS = [
+    [':info:', 1], [':)', 2], [':D', 3], [']:(', 4], [';)', 5], [':p', 6], [':o', 7], [':(', 8], ['8)', 9],
+    [':?:', 10], [':idee:', 11], [':lol:', 12], [':hihi:', 13], [':love:', 14], [':8o:', 15], [':bad:', 16],
+    [':good:', 17], [':crazy:', 18], [':|', 19], [':fleche:', 20], [':exclamation:', 21], [':[]', 22], [':?', 23],
+    [':cry:', 24], [':evil:', 25], [':c', 35], [':!', 36], [':nerd:', 37], [':gun:', 29], [':grenade:', 30],
+    [':chaine:', 31], [':upset:', 32], [':tchin:', 33], [':flame:', 34],
+  ];
+  const smileyUrl = (n) => `/images/forum/icon_forum_${n}.gif`;
+  const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Codes les plus longs d'abord pour que ":?:" ne soit pas lu comme ":?"
+  const SMILEY_RE = SMILEYS.map(([c]) => c).sort((a, b) => b.length - a.length).map(escapeRe).join('|');
+  const TEXT_TOKEN_RE = new RegExp(`(https?:\\/\\/[^\\s<>"]+)|(${SMILEY_RE})`, 'g');
+
+  const safeUrl = (u) => (/^https?:\/\//i.test(u.trim()) ? u.trim() : null);
+
+  function videoEmbed(url) {
+    const yt = /(?:youtu\.be\/|[?&]v=|embed\/|shorts\/)([\w-]{11})/.exec(url);
+    if (yt) return `<iframe src="https://www.youtube-nocookie.com/embed/${yt[1]}" allowfullscreen></iframe>`;
+    const dm = /dailymotion\.com\/video\/([a-z0-9]+)|dai\.ly\/([a-z0-9]+)/i.exec(url);
+    if (dm) return `<iframe src="https://www.dailymotion.com/embed/video/${dm[1] || dm[2]}" allowfullscreen></iframe>`;
+    return `<a href="${url}">🎬 ${url}</a>`;
+  }
+
+  // Rendu approximatif du BBCode de Gamekyo (le rendu final reste celui du serveur)
+  function bbcodeToHtml(src) {
+    let s = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const rules = [
+      [/\[g\]([\s\S]*?)\[\/g\]/gi, '<b>$1</b>'],
+      [/\[i\]([\s\S]*?)\[\/i\]/gi, '<i>$1</i>'],
+      [/\[s\]([\s\S]*?)\[\/s\]/gi, '<u>$1</u>'],
+      [/\[spoil\]([\s\S]*?)\[\/spoil\]/gi, '<span class="spoil">$1</span>'],
+      [/\[quote=([^\]]+)\]([\s\S]*?)\[\/quote\]/gi, '<blockquote class="gk-quote"><div class="gk-quote-author">$1 a écrit :</div>$2</blockquote>'],
+      [/\[quote\]([\s\S]*?)\[\/quote\]/gi, '<blockquote class="gk-quote">$1</blockquote>'],
+      [/\[img(?:=(\d+)(?:px)?)?\]([\s\S]*?)\[\/img\]/gi, (m, w, u) => (safeUrl(u) ? `<img src="${safeUrl(u)}"${w ? ` width="${w}"` : ''} alt="">` : m)],
+      [/\[url=([^\]]+)\]([\s\S]*?)\[\/url\]/gi, (m, u, t) => (safeUrl(u) ? `<a href="${safeUrl(u)}">${t}</a>` : m)],
+      [/\[url\]([\s\S]*?)\[\/url\]/gi, (m, u) => (safeUrl(u) ? `<a href="${safeUrl(u)}">${u}</a>` : m)],
+      [/\[video\]([\s\S]*?)\[\/video\]/gi, (m, u) => (safeUrl(u) ? videoEmbed(safeUrl(u)) : m)],
+    ];
+    // Plusieurs passes pour gérer les balises imbriquées
+    for (let pass = 0; pass < 4; pass++) {
+      const before = s;
+      rules.forEach(([re, rep]) => { s = s.replace(re, rep); });
+      if (s === before) break;
+    }
+    s = s.replace(/\r?\n/g, '<br>');
+
+    // Liens nus et smileys, uniquement dans le texte (jamais dans les attributs ni les liens)
+    const box = document.createElement('div');
+    box.innerHTML = s;
+    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) if (!walker.currentNode.parentElement.closest('a')) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const text = node.textContent;
+      TEXT_TOKEN_RE.lastIndex = 0;
+      if (!TEXT_TOKEN_RE.test(text)) return;
+      TEXT_TOKEN_RE.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      let m;
+      while ((m = TEXT_TOKEN_RE.exec(text))) {
+        frag.append(text.slice(last, m.index));
+        if (m[1]) {
+          const a = document.createElement('a');
+          a.href = a.textContent = m[1];
+          frag.append(a);
+        } else {
+          const img = document.createElement('img');
+          img.src = smileyUrl(SMILEYS.find(([c]) => c === m[2])[1]);
+          img.className = 'gk-smiley';
+          img.alt = m[2];
+          frag.append(img);
+        }
+        last = m.index + m[0].length;
+      }
+      frag.append(text.slice(last));
+      node.replaceWith(frag);
+    });
+    $$('a', box).forEach((a) => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+    return box.innerHTML;
+  }
+
+  // Insère des balises autour de la sélection, en gardant le texte sélectionné
+  function wrapText(ta, open, close = '') {
+    const { selectionStart: s, selectionEnd: e, value } = ta;
+    ta.focus();
+    ta.setRangeText(open + value.slice(s, e) + close, s, e);
+    ta.setSelectionRange(s + open.length, e + open.length);
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  const editors = new Set();
+
+  function buildSmileyPicker(ta, toolbar) {
+    const btn = h('<div class="tagSelection gk-smiley-btn"><a href="javascript:void(0);">Smileys</a><div class="gk-smiley-pop"></div></div>');
+    const pop = $('.gk-smiley-pop', btn);
+    SMILEYS.forEach(([code, n]) => {
+      const b = h(`<button type="button" title="${code}"><img src="${smileyUrl(n)}" alt=""></button>`);
+      b.addEventListener('mousedown', (e) => e.preventDefault()); // garde le focus dans le champ
+      b.addEventListener('click', () => { wrapText(ta, ` ${code} `); btn.classList.remove('gk-open'); });
+      pop.appendChild(b);
+    });
+    $('a', btn).addEventListener('click', () => btn.classList.toggle('gk-open'));
+    document.addEventListener('click', (e) => { if (!btn.contains(e.target)) btn.classList.remove('gk-open'); });
+    toolbar.appendChild(btn);
+  }
+
+  function attachEditor(ta, { compact = false, inPlace = false } = {}) {
+    if (ta.dataset.gkEditor) return;
+    ta.dataset.gkEditor = '1';
+
+    const preview = h(`
+      <div class="gk-preview${compact ? ' gk-compact' : ''}">
+        <div class="gk-preview-head"><span>Aperçu</span><small>rendu approximatif</small></div>
+        <div class="gk-preview-body"></div>
+      </div>`);
+    const body = $('.gk-preview-body', preview);
+    ta.after(preview);
+
+    let last = null;
+    const update = () => {
+      if (ta.value === last) return;
+      last = ta.value;
+      body.innerHTML = bbcodeToHtml(ta.value);
+      preview.classList.toggle('gk-empty', !ta.value.trim());
+      if (!compact) {
+        // Le champ grandit avec le texte au lieu d'afficher une barre de défilement
+        ta.style.height = 'auto';
+        ta.style.height = Math.min(Math.max(ta.scrollHeight + 4, 260), window.innerHeight * 0.75) + 'px';
+      }
+    };
+    ta.addEventListener('input', update);
+    editors.add({ ta, update });
+    update();
+
+    ta.addEventListener('keydown', (e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+      const tags = { b: 'g', g: 'g', i: 'i', u: 's' }[e.key.toLowerCase()];
+      if (!tags) return;
+      e.preventDefault();
+      wrapText(ta, `[${tags}]`, `[/${tags}]`);
+    });
+
+    // Barre d'outils du site juste au-dessus du champ : ajout d'un sélecteur de smileys s'il n'y en a pas
+    const toolbar = !inPlace && ta.closest('.form-textarea')?.querySelector('.form-textarea-field:has(> .tagSelection)');
+    if (toolbar && !$('#popup, .gk-smiley-btn', toolbar)) buildSmileyPicker(ta, toolbar);
+  }
+
+  function enhanceEditors(ctx) {
+    $$('#add-article-form textarea, textarea#message', ctx).forEach((ta) => attachEditor(ta));
+    $$('textarea[name="comment"]', ctx).forEach((ta) => attachEditor(ta, { compact: true }));
+    // Modification sur place d'un texte long (corps d'un article de blog)
+    $$('textarea.editor_field', ctx).forEach((ta) => { if (ta.rows > 1) attachEditor(ta, { inPlace: true }); });
+
+    const title = $('#add-article-form #title', ctx);
+    if (title && !title.dataset.gkCount) {
+      title.dataset.gkCount = '1';
+      const counter = h('<div class="gk-counter"></div>');
+      title.after(counter);
+      const max = title.maxLength > 0 ? title.maxLength : 64;
+      const upd = () => { counter.textContent = `${title.value.length} / ${max}`; counter.classList.toggle('gk-warn', title.value.length > max - 8); };
+      title.addEventListener('input', upd);
+      upd();
+    }
+  }
+
+  // Les boutons de la barre d'outils du site modifient le champ sans événement : on vérifie régulièrement
+  setInterval(() => editors.forEach((ed) => { if (ed.ta.isConnected) ed.update(); else editors.delete(ed); }), 400);
 
   /* ------------------------------------------------------------------ */
   /* Diaporama : ajoute un titre lisible à chaque slide                 */

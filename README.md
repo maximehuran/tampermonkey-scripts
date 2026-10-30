@@ -37,6 +37,7 @@ Modernise [gamekyo.com](https://www.gamekyo.com/) sans toucher à ses fonctionna
 - **Mode connecté** : menu compte dans la barre du haut (avatar, barre d'expérience, statut « défilante », liens vers ma page, profil, blog, amis, groupes, médias, messages, déconnexion), raccourcis « écrire un article » et « messages ».
 - **Espace membre** : menu d'administration, fils d'activité, gestion des amis et groupes, édition du profil (champs modifiables au clic), galeries, messagerie.
 - **Listes** (news, blogs, vidéos, tests) : notes en badges colorés (vert ≥ 8, orange ≥ 5, rouge en dessous).
+- **Rédaction** : aperçu en direct du BBCode (nouvel article, modification d'un article, commentaires, messages), raccourcis Ctrl/Cmd + B / I / U, sélecteur de smileys, compteur de caractères du titre, survol lisible des zones modifiables.
 - **Divers** : bouton retour en haut, liens externes dans un nouvel onglet.
 
 Les publicités ne sont pas bloquées, seulement contenues pour ne pas casser la mise en page.
