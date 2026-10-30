@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.5.0
+// @version      1.5.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -981,6 +981,12 @@ html.gk .inplaceeditor-form { display: block; margin: 6px 0 12px; }
 html.gk .inplaceeditor-form input.editor_field { width: 100%; box-sizing: border-box; }
 html.gk .big-title .inplaceeditor-form input.editor_field { font-size: 24px; font-weight: 700; padding: 10px 14px; }
 html.gk .inplaceeditor-form textarea.editor_field { font-size: 15px; line-height: 1.6; }
+/* Le site colore le champ d'édition en crème (#textarea-edit) : illisible en sombre */
+html.gk .inplaceeditor-form .editor_field {
+  background: var(--surface-2) !important; color: var(--text) !important;
+  border: 1px solid var(--border) !important; border-radius: var(--radius-sm) !important; padding: 12px 14px !important;
+}
+html.gk .inplaceeditor-form .editor_field:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface) !important; }
 html.gk .inplaceeditor-form a { margin-left: 8px; color: var(--muted) !important; font-size: 13px; }
 html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: none !important; }
 html.gk .article-source .gk-editable { color: var(--muted); }
@@ -1951,15 +1957,30 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
       const read = mode === 'read';
       root.classList.toggle('gk-read-mode', read);
       $$('button', bar).forEach((b) => b.classList.toggle('gk-on', b.dataset.mode === mode));
-      label.textContent = read ? '— affiché comme le voient les autres' : '— cliquez sur le titre ou le texte pour le modifier';
+      label.textContent = read ? '— affiché comme le voient les autres' : '— le titre et la source se modifient aussi au clic';
       $$('.gk-editable').forEach((el) => {
         if (!titles.has(el)) titles.set(el, el.title);
         el.title = read ? '' : titles.get(el);
       });
     };
+    // « Modifier » ouvre directement l'éditeur du texte de l'article
+    const openEditor = () => {
+      const article = editables[0].closest('.article-container');
+      const target = $('.medium-text .gk-editable', article) || $('.gk-editable', article);
+      if (!target || target.style.display === 'none' || $('.inplaceeditor-form', article)) return;
+      target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      setTimeout(() => {
+        const form = $('.inplaceeditor-form', article);
+        if (!form) return;
+        const top = form.getBoundingClientRect().top + window.scrollY - $('#gk-topbar').offsetHeight - 70;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }, 50);
+    };
     bar.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-mode]');
-      if (b) setMode(b.dataset.mode);
+      if (!b) return;
+      setMode(b.dataset.mode);
+      if (b.dataset.mode === 'edit') openEditor();
     });
 
     // En vue visiteur, un clic ne doit pas ouvrir l'éditeur du site (les liens restent cliquables)

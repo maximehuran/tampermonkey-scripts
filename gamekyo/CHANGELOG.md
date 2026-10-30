@@ -2,6 +2,14 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.5.1 — Édition directe
+
+### Nouveautés
+- Le bouton **Modifier** ouvre directement l'éditeur du texte de l'article, avec l'aperçu en direct, et fait défiler la page jusqu'à lui.
+
+### Corrections
+- Champ d'édition sur place au fond crème, illisible en mode sombre.
+
 ## 1.5.0 — Vue visiteur
 
 ### Nouveautés
