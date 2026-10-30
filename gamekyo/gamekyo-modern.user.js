@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.2.0
+// @version      1.3.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -118,17 +118,15 @@ html.gk #header, html.gk body > #main-menu-lign, html.gk body > #sub-menu-lign {
   max-width: 1400px; height: 100%; margin: 0 auto; padding: 0 20px;
   display: flex; align-items: center; gap: 18px;
 }
+/* Logo : seul élément qui garde les couleurs historiques (jaune sur bleu) */
 #gk-topbar .gk-logo {
-  font-size: 22px; font-weight: 800; letter-spacing: -.03em;
-  color: var(--text) !important; white-space: nowrap; display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 10px; white-space: nowrap;
+  background: linear-gradient(180deg, #6da2d5, #2f6aa8); box-shadow: inset 0 -3px 0 #87b9eb, 0 4px 12px rgba(47, 106, 168, .3);
+  font-size: 21px; font-weight: 900; font-style: italic; letter-spacing: .02em; text-transform: uppercase;
+  color: #ffd319 !important; text-shadow: 0 2px 0 #1d4f80, 0 0 1px #1d4f80;
+  transition: filter .15s;
 }
-#gk-topbar .gk-logo b { color: var(--accent); }
-#gk-topbar .gk-logo-mark {
-  width: 30px; height: 30px; border-radius: 9px;
-  background: linear-gradient(135deg, #5aaef2, #2f6fd1);
-  display: grid; place-items: center; color: #fff; font-size: 16px; font-weight: 800;
-  box-shadow: 0 4px 12px rgba(47, 128, 209, .35);
-}
+#gk-topbar .gk-logo:hover { filter: brightness(1.08); }
 #gk-menu { display: contents; }
 #gk-topbar .gk-spacer { display: none; flex: 1; }
 #gk-nav { display: flex; align-items: center; gap: 4px; }
@@ -279,6 +277,7 @@ html.gk #main-container-header:not(:has(> :not(.hidden, script, style))) { displ
 html.gk .advertisement { max-width: 100%; overflow: hidden; margin: 16px auto 0; text-align: center; }
 html.gk [id^="cGsas_"] { max-width: 100%; overflow: hidden; }
 html.gk #column-0 iframe, html.gk #column-2 iframe { max-width: 100%; }
+html.gk .box-frame-external:has(> iframe[src*="facebook.com/plugins"]) { display: none !important; }
 
 /* ---------- Cards ---------- */
 html.gk .box-frame,
@@ -354,7 +353,10 @@ html.gk .small-title a { color: var(--text) !important; }
 html.gk .small-title a:hover { color: var(--accent) !important; }
 html.gk .details { font-size: 12.5px; color: var(--muted); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
 html.gk .details img { width: 14px; height: 14px; opacity: .6; }
-html.gk.gk-dark .details img, html.gk.gk-dark .comment-number img { filter: invert(1); }
+html.gk img[src*="/icons/comment.gif"], html.gk img[src*="/icons/response.png"], html.gk img[src*="/icons/cross.gif"],
+html.gk img[src*="/icons/triangle_"], html.gk img[src*="/icons/tag_orange.gif"] { filter: brightness(0) opacity(.45) !important; }
+html.gk.gk-dark img[src*="/icons/comment.gif"], html.gk.gk-dark img[src*="/icons/response.png"], html.gk.gk-dark img[src*="/icons/cross.gif"],
+html.gk.gk-dark img[src*="/icons/triangle_"], html.gk.gk-dark img[src*="/icons/tag_orange.gif"] { filter: brightness(0) invert(.75) !important; }
 html.gk .details a { color: var(--muted) !important; }
 html.gk .details a.member { color: var(--orange) !important; }
 
@@ -369,7 +371,8 @@ html.gk #column-1 #news-frame .tip-container:hover .article-thumb img { transfor
 html.gk .medium-title { font-size: 18px; font-weight: 700; line-height: 1.3; letter-spacing: -.01em; color: var(--text); height: auto; }
 html.gk .medium-title a { color: var(--text) !important; }
 html.gk .medium-title a:hover { color: var(--accent) !important; }
-html.gk .medium-title img, html.gk .element-title img, html.gk .big-title > img { height: 16px; width: auto; vertical-align: -2px; border-radius: 3px; }
+html.gk .medium-title img, html.gk .element-title img, html.gk .small-title img, html.gk .big-title > img { height: 11px !important; width: auto !important; vertical-align: 1px; border-radius: 2px; margin-right: 2px; }
+html.gk .big-title > img { height: 14px !important; vertical-align: 5px; }
 html.gk .tip-container .medium-text { font-size: 14px; color: var(--muted); line-height: 1.5; margin-top: 6px; text-align: left; }
 
 /* ---------- Diaporama ---------- */
@@ -533,7 +536,7 @@ html.gk.gk-dark .medium-text [style*="background: #fff"], html.gk.gk-dark .mediu
 /* Galerie d'images dans un article */
 html.gk .medium-thumb-collection, html.gk .special-thumb-collection, html.gk .big-thumb-collection {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
-  padding: 0; margin: 14px 0 !important; list-style: none;
+  padding: 0; margin-top: 14px !important; margin-bottom: 14px !important; list-style: none;
 }
 html.gk .medium-thumb-collection:empty { display: none; }
 html.gk .box-container-external > .special-thumb-collection { padding: 14px 16px; margin: 0 !important; }
@@ -550,7 +553,7 @@ html.gk .box-frame-external:has(> .box-container-external > .special-thumb-colle
 }
 
 /* Likes */
-html.gk .votes-system-frame { float: none !important; margin: 18px 0 0 !important; display: flex; align-items: center; gap: 10px; }
+html.gk .votes-system-frame { float: none !important; margin-top: 22px !important; margin-bottom: 0 !important; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 html.gk .votes-frame { width: auto !important; height: auto !important; margin: 0 !important; }
 html.gk .votes-box {
   width: auto !important; height: auto !important; display: inline-flex !important; align-items: center; gap: 6px;
@@ -563,16 +566,19 @@ html.gk .votes-number { font-size: 15px !important; }
 html.gk .votes-text { font-size: 15px !important; }
 html.gk .voters-link a { font-size: 13px; color: var(--accent) !important; }
 html.gk .voters-box-news, html.gk .voters-box {
-  font-size: 13px; color: var(--muted); margin: 8px 0 0 !important; padding: 0 !important;
+  font-size: 13px; color: var(--muted); margin-top: 8px !important; margin-bottom: 0 !important; padding: 0 !important;
   background: none !important; border: 0 !important; width: auto !important; height: auto !important; float: none !important;
 }
+html.gk .votes-system-frame > .voters-box-news:has(a) { margin: 0 !important; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+html.gk .votes-system-frame > .voters-box-news > div { display: inline; }
+html.gk .voters-title { white-space: nowrap; }
 html.gk .voters-box.hidden { display: none !important; }
 html.gk .voters-box-news:not(:has(a)) { display: none; }
 html.gk .voters-title { font-weight: 600; color: var(--text-soft); }
 
 /* ---------- Commentaires ---------- */
 html.gk .comment-number {
-  font-size: 18px !important; font-weight: 800; color: var(--text); margin: 26px 0 6px !important;
+  font-size: 18px !important; font-weight: 800; color: var(--text); margin-top: 26px !important; margin-bottom: 6px !important;
   display: flex; align-items: center; gap: 8px; text-transform: capitalize;
 }
 html.gk .comment-number img { width: 18px; height: 18px; }
@@ -1095,7 +1101,7 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     const bar = h(`
       <header id="gk-topbar">
         <div class="gk-inner">
-          <a class="gk-logo" href="/index.html"><span class="gk-logo-mark">G</span><span class="gk-logo-text">Game<b>kyo</b></span></a>
+          <a class="gk-logo" href="/index.html" title="Gamekyo">Gamekyo</a>
           <div id="gk-menu">
             <nav id="gk-nav"></nav>
             <form id="gk-search" method="post" action="/search.html" role="search">
@@ -1299,7 +1305,16 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     });
   }
 
+  function enhanceVotes(ctx) {
+    $$('.votes-system-frame:not([data-gk])', ctx).forEach((frame) => {
+      frame.dataset.gk = '1';
+      const voters = frame.nextElementSibling;
+      if (voters && voters.classList.contains('voters-box-news')) frame.appendChild(voters);
+    });
+  }
+
   function enhance(ctx = document) {
+    enhanceVotes(ctx);
     enhanceImages(ctx);
     enhanceTiles(ctx);
     enhanceScores(ctx);
