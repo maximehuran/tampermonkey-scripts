@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.0.0
+// @version      1.1.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -176,6 +176,88 @@ html.gk-dark #gk-theme .gk-sun { display: none; }
 html.gk-dark #gk-theme .gk-moon { display: block; }
 #gk-burger { display: none; }
 
+/* ---------- Menu utilisateur (connecté) ---------- */
+#gk-user { position: relative; display: flex; align-items: center; gap: 8px; }
+html.gk-logged #gk-account { display: none; }
+#gk-user-btn {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 10px 0 4px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); color: var(--text);
+  font: 600 14px var(--font); transition: background .15s;
+}
+#gk-user-btn:hover, html.gk-user-open #gk-user-btn { background: var(--surface-3); }
+#gk-user-btn img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: var(--surface-3); }
+#gk-user-btn .gk-user-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: capitalize; }
+#gk-user-btn .gk-chevron { width: 16px; height: 16px; color: var(--muted); transition: transform .2s; }
+html.gk-user-open #gk-user-btn .gk-chevron { transform: rotate(180deg); }
+#gk-user-panel {
+  position: absolute; right: 0; top: calc(100% + 10px); width: 340px; max-height: calc(100vh - var(--topbar-h) - 20px);
+  overflow-y: auto; box-sizing: border-box; padding: 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .15s, transform .15s, visibility .15s;
+}
+html.gk-user-open #gk-user-panel { opacity: 1; visibility: visible; transform: none; }
+#gk-user-panel #account {
+  width: auto !important; float: none !important; margin: 0 !important; height: auto; color: var(--text) !important;
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 4px 12px; padding: 10px 10px 14px;
+  border-bottom: 1px solid var(--border); overflow: visible;
+}
+#gk-user-panel #account-avatar { grid-row: span 2; float: none; }
+#gk-user-panel #account-avatar img { width: 56px !important; height: 56px !important; border-radius: 50% !important; object-fit: cover; border: 0 !important; margin: 0 !important; }
+#gk-user-panel #account-post-triangle { display: none !important; }
+#gk-user-panel #account-information { background: none !important; padding: 0 !important; float: none !important; height: auto; overflow: visible; display: contents; }
+#gk-user-panel #account-name { float: none; font-size: 17px; font-weight: 800; text-transform: capitalize; align-self: end; }
+#gk-user-panel #account-name a { color: var(--text) !important; }
+#gk-user-panel #account-exp {
+  position: relative; height: 6px !important; max-width: none !important; border: 0 !important; border-radius: 999px; overflow: hidden;
+  background: var(--surface-3) !important; margin-top: 4px; align-self: start;
+}
+#gk-user-panel #account-exp::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: max(var(--gk-xp, 0%), 6px); border-radius: 999px;
+  background: linear-gradient(90deg, #5aaef2, #8a6cf2);
+}
+#gk-user-panel #account-exp-black { display: none !important; }
+#gk-user-panel #account-exp-text { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+#gk-user-panel #account-exp-text a { color: var(--accent) !important; }
+#gk-user-panel #account-post-text, #gk-user-panel #account-post-form, #gk-user-panel .account-link, #gk-user-panel #account-location { grid-column: 1 / -1; }
+#gk-user-panel #account-post-text {
+  margin-top: 8px; padding: 9px 12px; height: auto !important; border-radius: var(--radius-sm); background: var(--surface-2);
+  font-size: 14px; color: var(--text-soft); cursor: pointer; border: 1px dashed var(--border);
+}
+#gk-user-panel #account-post-text:empty::before { content: "✏️ Que faites-vous en ce moment ?"; color: var(--muted); }
+#gk-user-panel #account-post-text:hover { border-color: var(--accent); }
+#gk-user-panel #account-post-form { margin-top: 8px; }
+#gk-user-panel #account-post-form .form-submit { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+#gk-user-panel #account-post-form .submit { padding: 7px 14px; font-size: 13px; }
+#gk-user-panel #account-post-form .submit[value="annuler"] { background: var(--surface-3) !important; color: var(--text) !important; box-shadow: none; }
+#gk-user-panel .account-link { display: none; }
+#gk-user-panel .hidden { display: none !important; }
+.gk-user-links { display: flex; flex-direction: column; padding-top: 6px; }
+.gk-user-links a {
+  display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 14.5px; font-weight: 500; color: var(--text-soft) !important; text-transform: none;
+}
+.gk-user-links a span { display: inline-block; }
+.gk-user-links a span::first-letter { text-transform: uppercase; }
+.gk-user-links a:hover { background: var(--surface-2); color: var(--text) !important; }
+.gk-user-links a.gk-active { background: var(--accent-soft); color: var(--accent) !important; }
+.gk-user-links a svg { width: 18px; height: 18px; flex: none; color: var(--muted); }
+.gk-user-links a.gk-active svg { color: var(--accent); }
+.gk-user-links a.gk-logout { margin-top: 6px; border-top: 1px solid var(--border); border-radius: 0 0 var(--radius-sm) var(--radius-sm); padding-top: 12px; color: var(--red) !important; }
+.gk-user-links a.gk-logout svg { color: var(--red); }
+#gk-write, #gk-messages { width: 38px; height: 38px; }
+#gk-write svg, #gk-messages svg { width: 18px; height: 18px; }
+
+/* Notifications (amis, messages…) */
+html.gk #notification-list:not(:empty) {
+  max-width: 1400px; box-sizing: border-box; margin: 16px auto 0; padding: 0 20px; display: grid; gap: 8px;
+}
+html.gk .notification {
+  width: auto; display: flex; align-items: center; gap: 8px; justify-content: center; padding: 10px 16px !important;
+  border: 1px solid var(--border) !important; border-radius: var(--radius-sm); background: var(--accent-soft) !important;
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+html.gk .notification a { color: var(--accent) !important; }
+
 /* ---------- Layout ---------- */
 html.gk #main-container {
   width: auto !important; max-width: 1400px; box-sizing: border-box;
@@ -192,7 +274,7 @@ html.gk #main-container > #column-1, html.gk #main-container > #column-4 { grid-
 html.gk #main-container > #column-2 { grid-column: 3; grid-row: 2; }
 html.gk #main-container > #column-3 { grid-column: 1 / -1; }
 html.gk #main-container:not(:has(> #main-container-header)) > div { grid-row: 1; }
-html.gk #main-container-header:has(> .hidden:only-child), html.gk #main-container-header:not(:has(> :not(.hidden))) { display: none; }
+html.gk #main-container-header:not(:has(> :not(.hidden, script, style))) { display: none; }
 
 html.gk .advertisement { max-width: 100%; overflow: hidden; margin: 16px auto 0; text-align: center; }
 html.gk [id^="cGsas_"] { max-width: 100%; overflow: hidden; }
@@ -664,6 +746,114 @@ html.gk #dhtmltooltip {
 }
 html.gk #dhtmlpointer { display: none !important; }
 
+/* ---------- Espace membre ---------- */
+/* Titres d'encadrés repliables */
+html.gk .box-title > div[onclick] { display: flex; align-items: center; gap: 8px; flex: 1; cursor: pointer; flex-wrap: wrap; }
+html.gk .box-triangle { margin-left: auto; display: inline-flex; opacity: .6; transition: opacity .15s; }
+html.gk .box-title > div[onclick]:hover .box-triangle { opacity: 1; }
+html.gk.gk-dark .box-triangle img, html.gk.gk-dark .box-title > img, html.gk.gk-dark .box-title > div > img { filter: invert(1) hue-rotate(180deg); }
+html.gk .box-indication { width: 100%; font-size: 11.5px; font-weight: 500; letter-spacing: 0; color: var(--muted) !important; text-transform: none !important; }
+html.gk .box-indication:has(span:empty) { display: none; }
+
+/* Menu d'administration (colonne de gauche) */
+html.gk #administration-container { padding: 8px !important; }
+html.gk .administration-menu-category {
+  border: 0 !important; background: none !important; padding: 10px 10px 4px !important;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+}
+html.gk .administration-menu-text { padding: 0 !important; font-size: 14px; }
+html.gk .administration-menu-text img { display: none; }
+html.gk .administration-menu-text a {
+  display: block; padding: 8px 10px; border-radius: var(--radius-sm); color: var(--text-soft) !important; text-transform: none;
+}
+html.gk .administration-menu-text a::first-letter { text-transform: uppercase; }
+html.gk .administration-menu-text a:hover { background: var(--surface-2); color: var(--text) !important; }
+html.gk .administration-menu-text a.gk-active { background: var(--accent-soft); color: var(--accent) !important; font-weight: 600; }
+
+/* Fils d'activité, demandes d'amis, gestion des amis / groupes */
+html.gk .feed-member-box, html.gk .request-member-box, html.gk .management-member-box, html.gk .profile-feed-member-box {
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px !important; height: auto !important;
+  border: 0 !important; border-top: 1px solid var(--border) !important;
+}
+html.gk .feed-member-box:first-child, html.gk .management-member-box:first-child { border-top: 0 !important; }
+html.gk .feed-member-avatar, html.gk .request-member-avatar, html.gk .management-member-avatar { float: none !important; flex: none; }
+html.gk .feed-member-avatar img, html.gk .request-member-avatar img, html.gk .management-member-avatar img {
+  width: 44px !important; height: 44px !important; border-radius: 50% !important; object-fit: cover; border: 0 !important; margin: 0 !important;
+}
+html.gk .feed-member-information, html.gk .request-member-information, html.gk .management-member-information { flex: 1; min-width: 0; padding: 0 !important; height: auto; }
+html.gk .feed-member-name, html.gk .request-member-name, html.gk .management-member-name { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+html.gk .management-member-name .member { font-size: 15px; }
+html.gk .management-member-cross { margin-left: auto; }
+html.gk.gk-dark .management-member-cross img, html.gk.gk-dark .notification-cross img { filter: invert(1); }
+html.gk .feed-member-text, html.gk .request-member-text { font-size: 14px; font-weight: 500; color: var(--text-soft); margin-top: 2px; }
+html.gk .management-member-text { font-size: 13.5px; color: var(--text-soft); }
+html.gk .management-member-text .bold { color: var(--muted); }
+html.gk .feed-member-link { color: var(--accent) !important; font-weight: 600; }
+html.gk .feed-member-information .medium-text {
+  margin-top: 8px; padding: 8px 12px; border-left: 3px solid var(--border); background: var(--surface-2);
+  border-radius: 0 8px 8px 0; font-size: 14px; color: var(--text-soft); font-style: italic;
+}
+html.gk .feed-member-options, html.gk .request-member-options { margin-top: 8px !important; display: flex; flex-wrap: wrap; gap: 6px; font-size: 0; }
+html.gk .feed-member-options img, html.gk .request-member-options img { display: none; }
+html.gk .feed-member-options a, html.gk .request-member-options a {
+  font-size: 12.5px !important; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text-soft) !important;
+}
+html.gk .feed-member-options a:hover, html.gk .request-member-options a:hover { border-color: var(--accent); color: var(--accent) !important; }
+html.gk #request-list:empty::before, html.gk #messenger-list:empty::before {
+  content: "Rien pour le moment"; display: block; padding: 6px 0; font-size: 13px; color: var(--muted); text-align: center;
+}
+html.gk #messenger-list { background: transparent !important; }
+html.gk #friend-cloud-container { padding: 14px 16px !important; margin: 0 !important; }
+html.gk .thumb-media img[width] { width: 70px !important; height: 70px !important; }
+
+/* Édition du profil : champs modifiables au clic */
+html.gk .form-textarea-field > span[id$="-text"] {
+  display: inline-block; min-width: 220px; min-height: 1.4em; box-sizing: border-box; padding: 8px 12px; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--text); font-size: 14.5px; cursor: text;
+  transition: border-color .15s;
+}
+html.gk .form-textarea-field > span[id$="-text"]:hover { border-color: var(--accent); }
+html.gk .form-textarea-field > span[id$="-text"]:empty::before { content: "—"; color: var(--muted); }
+html.gk .form-textarea-field form { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+html.gk .form-textarea-field input[type="text"], html.gk .form-textarea-field input[type="password"], html.gk .form-textarea-field select { min-width: 260px; max-width: 100%; }
+html.gk .form-textarea-field input.submit { padding: 8px 14px; font-size: 13px; }
+html.gk .form-textarea-field input.submit[value="annuler"] { background: var(--surface-3) !important; color: var(--text) !important; box-shadow: none; }
+html.gk .box-container > form > .form-textarea, html.gk .box-container > .form-textarea { padding: 6px 0 10px !important; }
+html.gk .form-textarea .medium-title { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
+html.gk .form-textarea .medium-title:hover { border-color: var(--accent); }
+
+/* Autocomplétion (destinataire de message…) */
+html.gk .autocomplete { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); overflow: hidden; z-index: 100; }
+html.gk .autocomplete ul { font-size: 14.5px !important; }
+html.gk .autocomplete ul li { padding: 8px 12px !important; color: var(--text); }
+html.gk .autocomplete ul li.selected { background: var(--accent-soft) !important; color: var(--accent); }
+
+/* Galeries / onglets de catégories */
+html.gk #gallery-frame { background: transparent !important; border: 0 !important; box-shadow: none; overflow: visible; }
+html.gk .gallery-options { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0; margin: 0 0 12px; }
+html.gk .gallery-options a {
+  font-size: 13px !important; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-soft) !important;
+}
+html.gk .gallery-options a:hover { border-color: var(--accent); color: var(--accent) !important; }
+html.gk .tab-fix, html.gk ul.tab > li {
+  display: inline-block; float: left; padding: 6px 14px; margin: 0 6px 8px 0; border-radius: 999px; list-style: none;
+  background: var(--surface-2) !important; border: 1px solid var(--border) !important; color: var(--text-soft); font-size: 13px; font-weight: 600; cursor: pointer;
+}
+html.gk .tab-fix { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff; }
+html.gk ul.tab { margin: 0; padding: 0; }
+html.gk #gallery-media-container, html.gk #profile-gallery-media-container, html.gk #media-bag-droppable {
+  clear: both; background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius); padding: 14px !important;
+}
+html.gk #media-bag-droppable { border-style: dashed !important; color: var(--accent); text-align: center; }
+html.gk #gallery-media-sortable:empty::before { content: "Aucun média pour le moment"; display: block; padding: 24px; color: var(--muted); grid-column: 1 / -1; }
+html.gk.gk-dark #trashcan img { filter: invert(1); }
+html.gk .page-navigation:not(:empty) { margin: 14px 0; text-align: center; font-weight: 600; }
+html.gk .page-navigation a { padding: 6px 10px; border-radius: 8px; }
+html.gk .page-navigation a:hover { background: var(--surface-2); }
+html.gk #website-list, html.gk #email-list, html.gk #location-list, html.gk #file-list { margin: 8px 0; }
+
 /* ---------- Footer ---------- */
 html.gk #footer {
   max-width: 1400px; box-sizing: border-box; margin: 40px auto 0 !important; padding: 28px 20px 10px !important;
@@ -739,6 +929,10 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   #gk-nav svg { width: 18px; height: 18px; }
   #gk-account { border-top: 1px solid var(--border); padding-top: 10px; }
   #gk-account #sub-menu-lign { flex-wrap: wrap; }
+  #gk-user { gap: 6px; }
+  #gk-user-btn { padding: 0 4px; }
+  #gk-user-btn .gk-user-name, #gk-user-btn .gk-chevron { display: none; }
+  #gk-user-panel { position: fixed; left: 8px; right: 8px; top: calc(var(--topbar-h) + 6px); width: auto; }
 
   html.gk .article-container > .article-information { padding: 0 18px; }
   html.gk .article-container > :not(.article-information) { margin-left: 18px; margin-right: 18px; }
@@ -758,6 +952,8 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   html.gk .element-container { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 14px; }
   html.gk .element-detail { text-align: left; }
   html.gk .element-container.brown-background { display: none; }
+  #gk-write { display: none !important; }
+  #gk-topbar .gk-inner { gap: 6px; }
   html.gk .box-frame, html.gk .box-frame-external, html.gk .box-container-external-new { margin-bottom: 16px !important; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -794,6 +990,15 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     moon: '<svg class="gk-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
     menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
     up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
+    chevron: '<svg class="gk-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+    user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 20a6.5 6.5 0 0 0-2.5-5.1"/></svg>',
+    groups: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+    stream: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5"/></svg>',
+    image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
+    logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+    dot: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/></svg>',
   };
 
   // Section courante, déduite de l'URL
@@ -848,7 +1053,10 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
 
     // On déplace (sans cloner) le menu compte pour conserver les éventuelles mises à jour dynamiques
     const sub = $('#sub-menu-lign');
-    if (sub) {
+    const account = $('#account');
+    if (account) {
+      buildUserMenu(bar, account, sub);
+    } else if (sub) {
       Array.from(sub.childNodes).forEach((n) => {
         if (n.nodeType === 3 && /^[\s|]*$/.test(n.textContent)) n.remove();
         else if (n.nodeType === 3) n.textContent = n.textContent.replace(/^\s*\|\s*|\s*\|\s*$/g, ' ');
@@ -866,6 +1074,78 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     $('#gk-search', bar).addEventListener('submit', (e) => {
       if (!$('input', e.currentTarget).value.trim()) e.preventDefault();
     });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Menu utilisateur (mode connecté)                                   */
+  /* ------------------------------------------------------------------ */
+  const userLinkIcon = (href) => {
+    if (/sign_out/.test(href)) return ICONS.logout;
+    if (/my_home/.test(href)) return ICONS.home;
+    if (/my_messages|new_message/.test(href)) return ICONS.mail;
+    if (/stream/.test(href)) return ICONS.stream;
+    if (/member_friends/.test(href)) return ICONS.users;
+    if (/member_groups/.test(href)) return ICONS.groups;
+    if (/gallery/.test(href)) return ICONS.image;
+    if (/^\/blog\d/.test(href)) return ICONS.blog;
+    if (/^\/member\d/.test(href)) return ICONS.user;
+    return ICONS.dot;
+  };
+
+  function buildUserMenu(bar, account, sub) {
+    const avatar = $('#account-avatar img', account);
+    const nameLink = $('#account-name a', account);
+    const name = nameLink ? nameLink.textContent.trim() : '';
+
+    const wrap = h(`
+      <div id="gk-user">
+        <a id="gk-write" class="gk-icon-btn" href="/blog_add_type.html" title="Écrire un article">${ICONS.blog}</a>
+        <a id="gk-messages" class="gk-icon-btn" href="/my_messages.html" title="Messages">${ICONS.mail}</a>
+        <button id="gk-user-btn" type="button" aria-haspopup="true" aria-expanded="false">
+          <img alt="" /><span class="gk-user-name"></span>${ICONS.chevron}
+        </button>
+        <div id="gk-user-panel" role="menu"><nav class="gk-user-links"></nav></div>
+      </div>`);
+    const btn = $('#gk-user-btn', wrap);
+    const panel = $('#gk-user-panel', wrap);
+    if (avatar) $('img', btn).src = https(avatar.getAttribute('src') || '');
+    $('.gk-user-name', btn).textContent = name;
+
+    // Carte du compte d'origine (avatar, XP, statut) : déplacée telle quelle pour garder ses formulaires
+    panel.prepend(account);
+    const black = $('#account-exp-black', account);
+    if (black) {
+      const empty = parseFloat(black.style.width) || 0;
+      $('#account-exp', account)?.style.setProperty('--gk-xp', Math.max(0, 100 - empty) + '%');
+    }
+
+    const links = $('.gk-user-links', panel);
+    if (sub) {
+      $$('a', sub).forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        a.innerHTML = `${userLinkIcon(href)}<span>${a.textContent.trim()}</span>`;
+        if (/sign_out/.test(href)) a.classList.add('gk-logout');
+        if (href === path) a.classList.add('gk-active');
+        links.appendChild(a);
+      });
+      sub.remove();
+    }
+
+    const setOpen = (open) => {
+      root.classList.toggle('gk-user-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) root.classList.remove('gk-menu-open');
+    };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); setOpen(!root.classList.contains('gk-user-open')); });
+    document.addEventListener('click', (e) => { if (!e.target.closest('#gk-user')) setOpen(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    // « Répondre » dans les défilantes ouvre le formulaire de statut, qui vit désormais dans ce panneau
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.post-link a')) setTimeout(() => { setOpen(true); $('#account_post')?.focus(); }, 50);
+    });
+
+    $('.gk-inner', bar).insertBefore(wrap, $('#gk-theme', bar));
+    root.classList.add('gk-logged');
   }
 
   /* ------------------------------------------------------------------ */
@@ -1044,6 +1324,7 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
     if (oldSearch) oldSearch.closest('.box-frame')?.style.setProperty('display', 'none');
 
     buildTopbar();
+    $$('.administration-menu-text a').forEach((a) => { if (a.getAttribute('href') === path) a.classList.add('gk-active'); });
     enhance();
     enhanceSlideshow();
     enhanceTabs();
