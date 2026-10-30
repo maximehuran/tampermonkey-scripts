@@ -23,4 +23,6 @@ Chaque script déclare `@updateURL` / `@downloadURL` pointant vers ce dépôt. S
 
 Pour forcer la vérification : icône Tampermonkey → **Utilitaires** → **Vérifier les mises à jour d'userscripts**.
 
+<p><img src="gamekyo/screenshots/mise-a-jour.jpg" alt="Mettre à jour un script dans Tampermonkey" width="700"></p>
+
 Une mise à jour n'est proposée que si le numéro `@version` augmente : il faut l'incrémenter à chaque modification. Les versions de Gamekyo Modern sont publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).

@@ -37,6 +37,8 @@ Modernise [gamekyo.com](https://www.gamekyo.com/) directement dans le navigateur
 ### Réglages
 Bouton ⚙︎ dans la barre du haut (dans le menu burger sur mobile). Tout s'applique en direct et reste mémorisé dans le navigateur.
 
+<p><img src="screenshots/reglages.jpg" alt="Panneau de réglages" width="700"></p>
+
 | Réglage | Choix |
 | --- | --- |
 | Thème | Automatique, Clair, Sombre |
