@@ -2,6 +2,13 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.5.0 — Vue visiteur
+
+### Nouveautés
+- Sur vos propres articles de blog, une barre « C'est votre article » propose **Vue visiteur** / **Modifier**.
+- **Vue visiteur** (par défaut) : l'article s'affiche comme pour les autres membres. Un clic ne déclenche plus l'éditeur, les liens restent cliquables, le survol et l'infobulle d'édition disparaissent, les éléments réservés à l'auteur (croix de suppression des commentaires, tags vides, source vide) sont masqués.
+- **Modifier** : retour à l'édition sur place habituelle (titre, texte, source).
+
 ## 1.4.2 — Messagerie
 
 ### Nouveautés

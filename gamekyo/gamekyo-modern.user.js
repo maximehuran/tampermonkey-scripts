@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.4.2
+// @version      1.5.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -985,6 +985,26 @@ html.gk .inplaceeditor-form a { margin-left: 8px; color: var(--muted) !important
 html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: none !important; }
 html.gk .article-source .gk-editable { color: var(--muted); }
 
+/* Vue visiteur sur ses propres articles */
+.gk-owner-bar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  margin: 0 0 14px; padding: 10px 12px 10px 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px dashed color-mix(in srgb, var(--accent) 50%, var(--border)); box-shadow: var(--shadow);
+}
+.gk-owner-label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text); }
+.gk-owner-label small { font-weight: 400; color: var(--muted); }
+.gk-owner-label svg { width: 18px; height: 18px; color: var(--accent); }
+.gk-owner-bar .gk-seg { min-width: 260px; }
+.gk-owner-bar .gk-seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.gk-owner-bar .gk-seg svg { width: 15px; height: 15px; }
+html.gk-read-mode .gk-editable, html.gk-read-mode [title="click to edit"] { cursor: inherit; }
+html.gk-read-mode .gk-editable:hover, html.gk-read-mode [title="click to edit"]:hover { background-color: transparent !important; box-shadow: none !important; }
+html.gk-read-mode .big-title .gk-editable:hover::after { content: none; }
+html.gk-read-mode .comment-cross:has(a[href*="delete_"]) { display: none; }
+html.gk-read-mode .tag:has([id^="tag-list"]:empty) { display: none !important; }
+html.gk-read-mode .tag span[onclick] { pointer-events: none; }
+html.gk-read-mode .article-source:has(.gk-editable):not(:has(a[href^="http"])) { display: none; }
+
 /* Barre d'outils BBCode */
 html.gk .form-textarea-field:has(> .tagSelection) {
   display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; margin-bottom: 8px;
@@ -1910,6 +1930,49 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
   setInterval(() => editors.forEach((ed) => { if (ed.ta.isConnected) ed.update(); else editors.delete(ed); }), 400);
 
   /* ------------------------------------------------------------------ */
+  /* Ses propres articles : « Vue visiteur » par défaut, édition à la demande */
+  /* ------------------------------------------------------------------ */
+  function setupOwnerView() {
+    const editables = $$('.article-container .gk-editable');
+    if (!editables.length || $('.gk-owner-bar')) return;
+
+    const bar = h(`
+      <div class="gk-owner-bar">
+        <span class="gk-owner-label">${ICONS.user}<span>C'est votre article <small>— affiché comme le voient les autres</small></span></span>
+        <div class="gk-seg">
+          <button type="button" data-mode="read">👁 Vue visiteur</button>
+          <button type="button" data-mode="edit">${ICONS.blog} Modifier</button>
+        </div>
+      </div>`);
+    const label = $('.gk-owner-label small', bar);
+    const titles = new Map();
+
+    const setMode = (mode) => {
+      const read = mode === 'read';
+      root.classList.toggle('gk-read-mode', read);
+      $$('button', bar).forEach((b) => b.classList.toggle('gk-on', b.dataset.mode === mode));
+      label.textContent = read ? '— affiché comme le voient les autres' : '— cliquez sur le titre ou le texte pour le modifier';
+      $$('.gk-editable').forEach((el) => {
+        if (!titles.has(el)) titles.set(el, el.title);
+        el.title = read ? '' : titles.get(el);
+      });
+    };
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-mode]');
+      if (b) setMode(b.dataset.mode);
+    });
+
+    // En vue visiteur, un clic ne doit pas ouvrir l'éditeur du site (les liens restent cliquables)
+    document.addEventListener('click', (e) => {
+      if (root.classList.contains('gk-read-mode') && e.target.closest('.gk-editable, .tag span[onclick]')) e.stopPropagation();
+    }, true);
+
+    const first = editables[0].closest('.article-container');
+    first.parentElement.insertBefore(bar, first);
+    setMode('read');
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Diaporama : ajoute un titre lisible à chaque slide                 */
   /* ------------------------------------------------------------------ */
   function enhanceSlideshow() {
@@ -2005,6 +2068,7 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     buildTopbar();
     $$('.administration-menu-text a').forEach((a) => { if (a.getAttribute('href') === path) a.classList.add('gk-active'); });
     enhance();
+    setupOwnerView();
     enhanceSlideshow();
     enhanceTabs();
     enhanceReading();

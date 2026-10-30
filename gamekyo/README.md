@@ -33,6 +33,7 @@ Modernise [gamekyo.com](https://www.gamekyo.com/) directement dans le navigateur
 - Raccourcis clavier Ctrl/Cmd + B / I / U (gras, italique, souligné).
 - Sélecteur de smileys dans l'éditeur d'article, compteur de caractères du titre, champ qui s'agrandit avec le texte.
 - Survol lisible des zones modifiables sur place (titre, texte, source).
+- **Vue visiteur** sur vos propres articles : affichage comme les autres membres, sans déclencher l'éditeur par mégarde ; bouton « Modifier » pour repasser en édition.
 
 ### Réglages
 Bouton ⚙︎ dans la barre du haut (dans le menu burger sur mobile). Tout s'applique en direct et reste mémorisé dans le navigateur.
