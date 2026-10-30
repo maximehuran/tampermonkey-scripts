@@ -27,10 +27,8 @@ Une mise à jour n'est proposée que si le numéro `@version` augmente : penser 
 
 Modernise [gamekyo.com](https://www.gamekyo.com/) sans toucher à ses fonctionnalités.
 
-<p>
-  <img src="gamekyo/screenshots/desktop.jpg" alt="Gamekyo Modern sur ordinateur" width="640">
-  <img src="gamekyo/screenshots/mobile.jpg" alt="Gamekyo Modern sur mobile" width="180">
-</p>
+<p><img src="gamekyo/screenshots/hero.jpg" alt="Gamekyo Modern : mode sombre sur ordinateur, mode clair sur mobile" width="700"></p>
+<p><img src="gamekyo/screenshots/avant-apres.jpg" alt="Gamekyo avant / après le script" width="700"></p>
 
 Fonctionnalités :
 
