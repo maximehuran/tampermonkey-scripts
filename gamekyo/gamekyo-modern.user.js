@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.6.0
+// @version      1.7.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -43,7 +43,7 @@
   /* ------------------------------------------------------------------ */
   const SETTINGS_KEY = 'gk-modern-settings';
   const NAV_KEYS = ['home', 'news', 'blog', 'video', 'review'];
-  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hiddenNav: [], textSize: 'm', customCss: '' };
+  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hideSlider: false, listView: 'full', hiddenNav: [], textSize: 'm', customCss: '' };
   let settings;
   try { settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') }; } catch { settings = { ...DEFAULTS }; }
   const saveSettings = () => localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -53,6 +53,8 @@
   const applySettings = () => {
     root.classList.toggle('gk-hide-left', settings.hideLeft);
     root.classList.toggle('gk-hide-right', settings.hideRight);
+    root.classList.toggle('gk-hide-slider', settings.hideSlider);
+    root.dataset.gkList = settings.listView;
     root.dataset.gkLogo = settings.logo;
     root.dataset.gkText = settings.textSize;
     NAV_KEYS.forEach((k) => root.classList.toggle(`gk-nav-hide-${k}`, settings.hiddenNav.includes(k)));
@@ -1310,6 +1312,44 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
   html.gk #main-container, html.gk.gk-hide-left #main-container, html.gk.gk-hide-right #main-container { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
+/* ---------- Densité des listes de l'accueil ---------- */
+html.gk-hide-slider #column-1 #container, html.gk-hide-slider #column-1 #container + br { display: none !important; }
+/* Moyenne */
+html[data-gk-list="medium"] #column-1 #news-frame .tip-container { padding: 12px 16px; gap: 14px; }
+html[data-gk-list="medium"] #column-1 #news-frame .article-thumb img { width: 150px !important; height: 84px !important; }
+html[data-gk-list="medium"] #column-1 #news-frame .medium-title { font-size: 16px; }
+html[data-gk-list="medium"] #column-1 #news-frame .tip-container .medium-text {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13.5px; margin-top: 4px;
+}
+html[data-gk-list="medium"] #blog-frame .tip-container { padding: 9px 14px; gap: 10px; }
+html[data-gk-list="medium"] #blog-frame .article-thumb img { width: 34px !important; height: 34px !important; }
+html[data-gk-list="medium"] .tip-container-new { height: 112px !important; }
+/* Condensée */
+html[data-gk-list="compact"] #column-1 #news-frame .tip-container { padding: 9px 16px; gap: 0; }
+html[data-gk-list="compact"] #column-1 #news-frame .article-thumb,
+html[data-gk-list="compact"] #column-1 #news-frame .tip-container .medium-text,
+html[data-gk-list="compact"] #blog-frame .article-thumb { display: none; }
+html[data-gk-list="compact"] #column-1 #news-frame .medium-title { font-size: 15px; font-weight: 600; }
+html[data-gk-list="compact"] #column-1 #news-frame .details, html[data-gk-list="compact"] #blog-frame .details { margin-top: 1px; }
+html[data-gk-list="compact"] #blog-frame .tip-container { padding: 7px 14px; }
+html[data-gk-list="compact"] #blog-frame .small-title { font-size: 13.5px; }
+html[data-gk-list="compact"] #blog-frame .details + .details { display: inline-flex; }
+html[data-gk-list="compact"] .tip-container-new { height: 66px !important; }
+html[data-gk-list="compact"] .tip-container-new .medium-title {
+  font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-right: 54px;
+}
+html[data-gk-list="compact"] .tip-container-new a.fill-div { padding: 8px 12px; }
+html[data-gk-list="compact"] .tip-container-new .comments-popular, html[data-gk-list="compact"] .tip-container-new .score { top: 50%; transform: translateY(-50%); }
+html[data-gk-list="compact"] .tip-container-new .details { display: none; }
+@media (max-width: 560px) {
+  html[data-gk-list="medium"] #column-1 #news-frame .tip-container { flex-direction: row; gap: 12px; padding: 12px 14px; }
+  html[data-gk-list="medium"] #column-1 #news-frame .article-thumb { width: auto; }
+  html[data-gk-list="medium"] #column-1 #news-frame .article-thumb img { width: 112px !important; height: 63px !important; aspect-ratio: auto; }
+  html[data-gk-list="medium"] #column-1 #news-frame .medium-title { font-size: 15px; }
+  html[data-gk-list="medium"] #column-1 #news-frame .tip-container .medium-text { display: none; }
+  html[data-gk-list="compact"] #column-1 #news-frame .tip-container { padding: 10px 14px; gap: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.gk *, html.gk *::before, html.gk *::after { transition: none !important; }
 }
@@ -1483,6 +1523,11 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
               <h3>Mise en page</h3>
               ${toggle('hideLeft', 'Masquer la colonne de gauche', settings.hideLeft, 'Blogs, news liées, profil…')}
               ${toggle('hideRight', 'Masquer la colonne de droite', settings.hideRight, 'News populaires, avis, fiche du jeu, pubs…')}
+              ${toggle('hideSlider', "Masquer le diaporama de l'accueil", settings.hideSlider, 'Les news commencent directement en haut de page')}
+              <div class="gk-field"><span class="gk-label">Affichage des listes de l'accueil</span>
+                ${seg('listView', settings.listView, [['full', 'Complète'], ['medium', 'Moyenne'], ['compact', 'Condensée']])}
+                <p class="gk-hint">Complète : grandes images et résumé. Moyenne : petites vignettes, résumé court. Condensée : titres seuls, pour tout voir d'un coup d'œil.</p>
+              </div>
               <div class="gk-field"><span class="gk-label">Rubriques du menu</span>
                 <div class="gk-checks">
                   ${NAV_KEYS.filter((k) => navLabels[k]).map((k) => `<label><input type="checkbox" data-nav="${k}" ${settings.hiddenNav.includes(k) ? '' : 'checked'}> ${navLabels[k]}</label>`).join('')}

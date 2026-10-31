@@ -2,6 +2,16 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.7.0 — Affichage des listes
+
+### Nouveautés
+- Réglage **Affichage des listes de l'accueil** :
+  - **Complète** : grandes images et résumé (comme avant) ;
+  - **Moyenne** : petites vignettes, résumé sur deux lignes (une vignette à gauche sur mobile) ;
+  - **Condensée** : titres seuls, sans image ni résumé, pour tout parcourir d'un coup d'œil.
+  S'applique au fil d'actus, à la liste des blogs et aux tuiles « News populaires ».
+- Réglage **Masquer le diaporama de l'accueil** : les news commencent directement en haut de page.
+
 ## 1.6.0 — Commentaires
 
 ### Nouveautés
