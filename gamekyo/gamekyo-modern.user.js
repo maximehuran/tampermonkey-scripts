@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.5.1
+// @version      1.6.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -538,6 +538,11 @@ html.gk .element-title > div:not(.details) { width: 100%; }
 html.gk .element-title a { color: var(--text) !important; }
 html.gk .element-title a:hover { color: var(--accent) !important; }
 html.gk .element-title .details { width: 100%; margin: 0; }
+html.gk .gk-initial {
+  display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; margin-right: 7px; vertical-align: middle;
+  font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; flex: none;
+}
+html.gk .element-detail a.member { display: inline-flex; align-items: center; }
 html.gk .element-detail { flex: none; width: auto !important; float: none !important; font-size: 13px; color: var(--muted); text-align: right; white-space: nowrap; }
 
 /* ---------- Article (news, vidéo, blog, avis) ---------- */
@@ -620,11 +625,20 @@ html.gk .votes-system-frame { float: none !important; margin-top: 22px !importan
 html.gk .votes-frame { width: auto !important; height: auto !important; margin: 0 !important; }
 html.gk .votes-box {
   width: auto !important; height: auto !important; display: inline-flex !important; align-items: center; gap: 6px;
-  padding: 7px 14px !important; border-radius: 999px; border: 0 !important;
-  background: linear-gradient(135deg, #ff8a5c, #f0516a) !important; box-shadow: 0 4px 12px rgba(240, 81, 106, .3);
-  flex-direction: row-reverse; transition: transform .15s;
+  padding: 7px 14px !important; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border) !important; background: var(--surface-2) !important; box-shadow: none;
+  flex-direction: row-reverse; transition: transform .15s, background .2s, border-color .2s;
 }
-html.gk .votes-box:hover { transform: scale(1.05); }
+html.gk .votes-box .votes-number, html.gk .votes-box .votes-text { color: var(--text-soft) !important; }
+html.gk .votes-box .votes-text { color: var(--muted) !important; }
+html.gk .votes-box:hover { transform: scale(1.05); border-color: #f0516a !important; }
+html.gk .votes-box:hover .votes-text { color: #f0516a !important; }
+/* Aimé : cœur rouge plein */
+html.gk .votes-box.voted {
+  border-color: transparent !important; background: linear-gradient(135deg, #ff8a5c, #f0516a) !important;
+  box-shadow: 0 4px 12px rgba(240, 81, 106, .3);
+}
+html.gk .votes-box.voted .votes-number, html.gk .votes-box.voted .votes-text { color: #fff !important; }
 html.gk .votes-number { font-size: 15px !important; }
 html.gk .votes-text { font-size: 15px !important; }
 html.gk .voters-link a { font-size: 13px; color: var(--accent) !important; }
@@ -659,6 +673,38 @@ html.gk .comment-name { font-size: 13px; color: var(--muted); display: flex; fle
 html.gk .comment-name .member { font-size: 14px; }
 html.gk .comment-cross { margin-left: auto; opacity: 0; transition: opacity .15s; }
 html.gk .comment-box:hover .comment-cross { opacity: 1; }
+html.gk .comment-box:has(.gk-comment-actions) .comment-cross { display: none; }
+html.gk .gk-comment-actions { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; font-size: 12.5px; }
+html.gk .gk-comment-actions button {
+  border: 0; background: none; padding: 2px 0; cursor: pointer; font: 600 12.5px var(--font); color: var(--muted);
+  display: inline-flex; align-items: center; gap: 4px;
+}
+html.gk .gk-comment-actions button:hover { color: var(--accent); }
+html.gk .gk-comment-actions button.gk-act-delete:hover { color: var(--red); }
+html.gk .gk-comment-actions svg { width: 13px; height: 13px; }
+html.gk .comment-box.gk-mine { position: relative; }
+html.gk .comment-box.gk-mine .comment-name .member::after {
+  content: "vous"; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 700;
+  background: var(--accent-soft); color: var(--accent); vertical-align: 1px;
+}
+html.gk .comment-box.gk-new { animation: gk-flash 2.4s ease-out; }
+@keyframes gk-flash { 0%, 30% { background: var(--accent-soft); } 100% { background: transparent; } }
+/* Autocomplétion des pseudos (@) */
+.gk-mention-pop {
+  position: absolute; z-index: 70; min-width: 200px; max-width: 280px; max-height: 240px; overflow-y: auto; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+  font-family: var(--font);
+}
+.gk-mention-pop button {
+  display: flex; width: 100%; align-items: center; gap: 8px; padding: 7px 10px; border: 0; border-radius: 8px; cursor: pointer;
+  background: none; color: var(--text); font: 600 14px var(--font); text-align: left;
+}
+.gk-mention-pop button.gk-on, .gk-mention-pop button:hover { background: var(--accent-soft); color: var(--accent); }
+.gk-mention-pop small { margin-left: auto; font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.gk-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9500; padding: 9px 16px; border-radius: 999px;
+  background: var(--text); color: var(--bg); font: 600 13px var(--font); box-shadow: var(--shadow-lg); animation: gk-fade .2s ease-out;
+}
 html.gk .comment-cross img { width: 16px; height: 16px; }
 html.gk.gk-dark .comment-cross img { filter: invert(1); }
 html.gk .comment-text {
@@ -991,6 +1037,17 @@ html.gk .inplaceeditor-form a { margin-left: 8px; color: var(--muted) !important
 html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: none !important; }
 html.gk .article-source .gk-editable { color: var(--muted); }
 
+/* Liste d'articles d'un blog : liens commentaires en boutons */
+html.gk .comment-number:has(> a) { font-size: 0 !important; gap: 8px; flex-wrap: wrap; text-transform: none; }
+html.gk .comment-number:has(> a) > img { display: none; }
+html.gk .comment-number > a {
+  font-size: 13.5px; font-weight: 600; padding: 7px 14px; border-radius: 999px; text-transform: none;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text-soft) !important;
+}
+html.gk .comment-number > a:first-of-type { background: var(--accent); border-color: var(--accent); color: #fff !important; }
+html.gk .comment-number > a:hover { border-color: var(--accent); }
+html.gk .comment-number > a:first-of-type::first-letter, html.gk .comment-number > a::first-letter { text-transform: uppercase; }
+
 /* Vue visiteur sur ses propres articles */
 .gk-owner-bar {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
@@ -1003,10 +1060,11 @@ html.gk .article-source .gk-editable { color: var(--muted); }
 .gk-owner-bar .gk-seg { min-width: 260px; }
 .gk-owner-bar .gk-seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .gk-owner-bar .gk-seg svg { width: 15px; height: 15px; }
-html.gk-read-mode .gk-editable, html.gk-read-mode [title="click to edit"] { cursor: inherit; }
-html.gk-read-mode .gk-editable:hover, html.gk-read-mode [title="click to edit"]:hover { background-color: transparent !important; box-shadow: none !important; }
+html.gk-read-mode :not(.comment-text) > .gk-editable { cursor: inherit; }
+html.gk-read-mode :not(.comment-text) > .gk-editable:hover { background-color: transparent !important; box-shadow: none !important; }
 html.gk-read-mode .big-title .gk-editable:hover::after { content: none; }
-html.gk-read-mode .comment-cross:has(a[href*="delete_"]) { display: none; }
+html.gk-read-mode .comment-box:not(.gk-mine) .comment-cross:has(a[href*="delete_"]),
+html.gk-read-mode .comment-box:not(.gk-mine) .gk-act-delete { display: none; }
 html.gk-read-mode .tag:has([id^="tag-list"]:empty) { display: none !important; }
 html.gk-read-mode .tag span[onclick] { pointer-events: none; }
 html.gk-read-mode .article-source:has(.gk-editable):not(:has(a[href^="http"])) { display: none; }
@@ -1158,6 +1216,9 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   html.gk #column-1 #news-frame .article-thumb img { width: 100% !important; height: auto !important; aspect-ratio: 16 / 9; }
   html.gk .element-container { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 14px; }
   html.gk .element-detail { text-align: left; }
+  html.gk .element-detail:has(a.member) { order: -1; margin-bottom: 2px; }
+  html.gk #element-list .element-container { gap: 6px; }
+  html.gk .element-title { font-size: 15.5px; }
   html.gk .element-container.brown-background { display: none; }
   #gk-write { display: none !important; }
   #gk-topbar .gk-inner { gap: 6px; }
@@ -1294,6 +1355,8 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
     settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    reply: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v5"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
     dot: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/></svg>',
   };
 
@@ -1566,6 +1629,7 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     wrap.insertBefore($('#gk-theme', bar), btn);
     $('.gk-inner', bar).insertBefore(wrap, $('#gk-burger', bar));
     root.classList.add('gk-logged');
+    root.dataset.gkUser = (nameLink?.getAttribute('href') || '').replace(/^\//, '');
   }
 
   /* ------------------------------------------------------------------ */
@@ -1750,6 +1814,208 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     });
   }
 
+  // Listes (blogs, tests…) : pastille avec l'initiale de l'auteur
+  function enhanceInitials(ctx) {
+    $$('.element-detail a.member:not([data-gk-init])', ctx).forEach((a) => {
+      a.dataset.gkInit = '1';
+      const name = a.textContent.trim();
+      let hash = 0;
+      for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) % 360;
+      const dot = document.createElement('span');
+      dot.className = 'gk-initial';
+      dot.style.background = `hsl(${hash}, 55%, 45%)`;
+      dot.textContent = name.charAt(0);
+      a.prepend(dot);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Commentaires : actions visibles, envoi, @mentions                  */
+  /* ------------------------------------------------------------------ */
+  const myProfile = () => (root.dataset.gkUser ? `/${root.dataset.gkUser}` : null);
+  let pendingComment = null; // { list, ta, at } après un clic sur « ajouter un commentaire »
+
+  function focusCommentForm() {
+    const ta = $('.comment-form textarea[name="comment"]');
+    if (!ta) return;
+    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 300);
+  }
+
+  function enhanceComments(ctx) {
+    $$('.comment-box:not([data-gk-c])', ctx).forEach((box) => {
+      box.dataset.gkC = '1';
+      const author = $('.comment-name a.member', box);
+      const mine = !!myProfile() && author?.getAttribute('href') === myProfile();
+      box.classList.toggle('gk-mine', mine);
+
+      const reply = $('.comment-cross a[href*="wrapSelection"]', box);
+      const del = $('.comment-cross a[href*="delete_comment"]', box);
+      const editable = $('.comment-text .gk-editable, .comment-text [title="click to edit"]', box);
+      const info = $('.comment-information', box);
+      if (info && (reply || del || editable)) {
+        const actions = h('<div class="gk-comment-actions"></div>');
+        const add = (cls, icon, label, fn) => {
+          const b = h(`<button type="button" class="${cls}">${icon}<span>${label}</span></button>`);
+          b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); fn(); });
+          actions.appendChild(b);
+        };
+        if (reply) add('gk-act-reply', ICONS.reply, 'Répondre', () => { reply.click(); focusCommentForm(); });
+        if (editable) add('gk-act-edit', ICONS.blog, 'Modifier', () => editable.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+        if (del) add('gk-act-delete', ICONS.trash, 'Supprimer', () => del.click());
+        info.appendChild(actions);
+      }
+
+      // Notre commentaire vient d'être ajouté : on vide le champ et on l'affiche
+      if (mine && pendingComment && Date.now() - pendingComment.at < 20000 && pendingComment.list?.contains(box)) {
+        const { ta } = pendingComment;
+        pendingComment = null;
+        ta.value = '';
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        box.classList.add('gk-new');
+        setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+      }
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.comment-form input.submit, .comment-form input[type="submit"]');
+    if (!btn) return;
+    const form = btn.closest('form');
+    const ta = form && $('textarea[name="comment"]', form);
+    if (ta && ta.value.trim()) pendingComment = { ta, at: Date.now(), list: btn.closest('[id^="comment-container"]') || document };
+  }, true);
+
+  // Autocomplétion « @pseudo » avec les membres présents dans la discussion
+  function discussionMembers() {
+    const names = [];
+    const push = (n, tag) => { n = n.trim(); if (n && !names.some((x) => x.name.toLowerCase() === n.toLowerCase())) names.push({ name: n, tag }); };
+    $$('.comment-list .comment-box').reverse().forEach((b) => { const a = $('.comment-name a.member', b); if (a) push(a.textContent, 'commentaire'); });
+    $$('.article-details a.member, .big-title + .article-category a.member').forEach((a) => push(a.textContent, 'auteur'));
+    $$('.comment-text a.memberresponse').forEach((a) => push(a.textContent, 'cité'));
+    $$('.voters-box-news a.member').forEach((a) => push(a.textContent, 'a aimé'));
+    const me = $('#account-name a')?.textContent.trim().toLowerCase();
+    return names.filter((x) => x.name.toLowerCase() !== me);
+  }
+
+  function attachMentions(ta) {
+    if (ta.dataset.gkMention) return;
+    ta.dataset.gkMention = '1';
+    let pop = null;
+    let items = [];
+    let sel = 0;
+    let start = -1;
+    const close = () => { pop?.remove(); pop = null; };
+    const insert = (name) => {
+      const end = ta.selectionStart;
+      ta.setRangeText(`@${name} `, start, end, 'end');
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      close();
+      ta.focus();
+    };
+    const render = () => {
+      pop.innerHTML = '';
+      items.forEach((it, i) => {
+        const b = h(`<button type="button" class="${i === sel ? 'gk-on' : ''}"><span></span><small>${it.tag}</small></button>`);
+        $('span', b).textContent = `@${it.name}`;
+        b.addEventListener('mousedown', (e) => { e.preventDefault(); insert(it.name); });
+        pop.appendChild(b);
+      });
+    };
+    const check = () => {
+      const before = ta.value.slice(0, ta.selectionStart);
+      const m = /(^|[\s(])@([\w-]*)$/.exec(before);
+      if (!m) return close();
+      start = ta.selectionStart - m[2].length - 1;
+      const q = m[2].toLowerCase();
+      const all = discussionMembers();
+      items = all.filter((x) => x.name.toLowerCase().startsWith(q))
+        .concat(all.filter((x) => !x.name.toLowerCase().startsWith(q) && x.name.toLowerCase().includes(q))).slice(0, 8);
+      if (!items.length) return close();
+      sel = Math.min(sel, items.length - 1);
+      if (!pop) { pop = h('<div class="gk-mention-pop" role="listbox"></div>'); document.body.appendChild(pop); }
+      const r = ta.getBoundingClientRect();
+      pop.style.left = `${r.left + window.scrollX + 8}px`;
+      pop.style.top = `${r.bottom + window.scrollY + 4}px`;
+      render();
+    };
+    ta.addEventListener('input', () => { sel = 0; check(); });
+    ta.addEventListener('click', check);
+    ta.addEventListener('blur', () => setTimeout(close, 150));
+    ta.addEventListener('keydown', (e) => {
+      if (!pop) return;
+      if (e.key === 'ArrowDown') { sel = (sel + 1) % items.length; render(); e.preventDefault(); }
+      else if (e.key === 'ArrowUp') { sel = (sel - 1 + items.length) % items.length; render(); e.preventDefault(); }
+      else if (e.key === 'Enter' || e.key === 'Tab') { insert(items[sel].name); e.preventDefault(); }
+      else if (e.key === 'Escape') { close(); e.preventDefault(); }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Émojis : Gamekyo ne les enregistre pas → conversion en smileys     */
+  /* ------------------------------------------------------------------ */
+  const EMOJI_TO_SMILEY = {
+    ':)': '🙂😊☺😇🤗', ':D': '😀😃😄😁😺😸', ';)': '😉😏', ':p': '😛😜😝😋', ':o': '😮😯😲',
+    ':(': '🙁☹😞😟😔😕', '8)': '😎', ':lol:': '😂🤣😹', ':hihi:': '😆😅🤭', ':love:': '😍🥰😘😻❤💕💖💗💘💓💞♥',
+    ':cry:': '😢😭😿🥲', ']:(': '😠😡🤬', ':evil:': '😈👿', ':?:': '🤔❓❔', ':idee:': '💡', ':good:': '👍👌✅',
+    ':bad:': '👎❌', ':crazy:': '🤪😵🙃', ':|': '😐😑😶', ':8o:': '😱😳🤯', ':exclamation:': '❗❕‼', ':fleche:': '➡',
+    ':info:': 'ℹ', ':nerd:': '🤓', ':gun:': '🔫', ':grenade:': '💣', ':tchin:': '🍻🥂🍺', ':flame:': '🔥', ':upset:': '😤😒🙄',
+    ':[]': '😬',
+  };
+  const EMOJI_MAP = new Map();
+  // Spread plutôt qu'Array.from : prototype.js (chargé par le site) remplace Array.from et casse les émojis
+  Object.entries(EMOJI_TO_SMILEY).forEach(([code, list]) => [...list].forEach((e) => EMOJI_MAP.set(e, code)));
+  const EMOJI_HINT_RE = /[\u{10000}-\u{10FFFF}]|\p{Extended_Pictographic}/u;
+  const segmenter = typeof Intl.Segmenter === 'function' ? new Intl.Segmenter('fr', { granularity: 'grapheme' }) : null;
+
+  function convertEmojis(text, stats, prev = '') {
+    if (!EMOJI_HINT_RE.test(text)) return text;
+    const graphemes = segmenter ? [...segmenter.segment(text)].map((x) => x.segment) : [...text];
+    let out = '';
+    graphemes.forEach((g) => {
+      const base = g.replace(/[\uFE0F\u200D]|[\u{1F3FB}-\u{1F3FF}]/gu, '');
+      const chars = [...base];
+      const first = chars[0];
+      if (first && EMOJI_MAP.has(first) && (chars.length === 1 || /\u200D/.test(g))) {
+        stats.converted++;
+        // Une espace devant le smiley, sauf en début de texte ou après une espace
+        const last = (prev + out).slice(-1);
+        out += (last && !/\s/.test(last) ? ' ' : '') + EMOJI_MAP.get(first);
+      } else if (/[\u{10000}-\u{10FFFF}]/u.test(g)) {
+        stats.removed++;
+      } else {
+        out += g.replace(/\uFE0F/g, '');
+      }
+    });
+    return out;
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    $('.gk-toast')?.remove();
+    const t = h('<div class="gk-toast"></div>');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.remove(), 2600);
+  }
+
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!(el instanceof HTMLTextAreaElement || (el instanceof HTMLInputElement && /^(text|search)$/.test(el.type)))) return;
+    if (el.closest('#gk-settings') || !EMOJI_HINT_RE.test(el.value)) return;
+    const stats = { converted: 0, removed: 0 };
+    const caret = el.selectionStart ?? el.value.length;
+    const before = convertEmojis(el.value.slice(0, caret), stats);
+    const after = convertEmojis(el.value.slice(caret), stats, before);
+    if (!stats.converted && !stats.removed) return;
+    el.value = before + after;
+    el.setSelectionRange(before.length, before.length);
+    if (stats.converted) toast(stats.removed ? 'Émojis convertis en smileys Gamekyo, les autres retirés' : 'Émoji converti en smiley Gamekyo');
+    else toast('Émoji retiré : Gamekyo ne les prend pas en charge');
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, true);
+
   function enhance(ctx = document) {
     enhanceNotifications(ctx);
     enhanceMessages(ctx);
@@ -1760,6 +2026,8 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
     enhanceSpoilers(ctx);
     enhanceLinks(ctx);
     enhanceInPlace(ctx);
+    enhanceComments(ctx);
+    enhanceInitials(ctx);
     enhanceEditors(ctx);
   }
 
@@ -1916,7 +2184,7 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
 
   function enhanceEditors(ctx) {
     $$('#add-article-form textarea, textarea#message', ctx).forEach((ta) => attachEditor(ta));
-    $$('textarea[name="comment"]', ctx).forEach((ta) => attachEditor(ta, { compact: true }));
+    $$('textarea[name="comment"]', ctx).forEach((ta) => { attachEditor(ta, { compact: true }); attachMentions(ta); });
     // Modification sur place d'un texte long (corps d'un article de blog)
     $$('textarea.editor_field', ctx).forEach((ta) => { if (ta.rows > 1) attachEditor(ta, { inPlace: true }); });
 
@@ -1939,7 +2207,8 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
   /* Ses propres articles : « Vue visiteur » par défaut, édition à la demande */
   /* ------------------------------------------------------------------ */
   function setupOwnerView() {
-    const editables = $$('.article-container .gk-editable');
+    // Seuls le titre / texte / source de l'article comptent (pas nos propres commentaires, modifiables eux aussi)
+    const editables = $$('.article-container .gk-editable').filter((el) => !el.closest('.comment-box'));
     if (!editables.length || $('.gk-owner-bar')) return;
 
     const bar = h(`
@@ -1958,7 +2227,7 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
       root.classList.toggle('gk-read-mode', read);
       $$('button', bar).forEach((b) => b.classList.toggle('gk-on', b.dataset.mode === mode));
       label.textContent = read ? '— affiché comme le voient les autres' : '— le titre et la source se modifient aussi au clic';
-      $$('.gk-editable').forEach((el) => {
+      editables.forEach((el) => {
         if (!titles.has(el)) titles.set(el, el.title);
         el.title = read ? '' : titles.get(el);
       });
@@ -1985,7 +2254,8 @@ html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !im
 
     // En vue visiteur, un clic ne doit pas ouvrir l'éditeur du site (les liens restent cliquables)
     document.addEventListener('click', (e) => {
-      if (root.classList.contains('gk-read-mode') && e.target.closest('.gk-editable, .tag span[onclick]')) e.stopPropagation();
+      if (!root.classList.contains('gk-read-mode') || e.target.closest('.comment-box')) return;
+      if (e.target.closest('.gk-editable, .tag span[onclick]')) e.stopPropagation();
     }, true);
 
     const first = editables[0].closest('.article-container');

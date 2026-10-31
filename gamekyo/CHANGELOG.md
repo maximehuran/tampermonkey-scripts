@@ -2,6 +2,20 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.6.0 — Commentaires
+
+### Nouveautés
+- Actions des commentaires toujours visibles (mobile compris) : **Répondre**, et sur vos commentaires **Modifier** et **Supprimer** (suppression native du site, avec confirmation). Vos commentaires portent un badge « vous ».
+- **Autocomplétion des pseudos** : tapez `@` dans un commentaire pour proposer les membres de la discussion (commentateurs, auteur, membres cités, likes) ; flèches + Entrée/Tab pour choisir.
+- Après l'envoi d'un commentaire, le champ est vidé et la page défile jusqu'au nouveau commentaire, mis en évidence.
+- **Émojis** : convertis automatiquement en smileys Gamekyo (😂 → `:lol:`, 👍 → `:good:`, ❤️ → `:love:`…) ; ceux sans équivalent sont retirés, car le site ne les enregistre pas. Un message signale la conversion.
+- Bouton like : neutre si vous n'avez pas aimé, rouge si vous avez aimé.
+- Liste des blogs sur mobile : auteur avec pastille d'initiale au-dessus du titre.
+- Liste d'articles d'un blog : « Ajouter un commentaire » et « Commentaires (n) » en boutons.
+
+### Corrections
+- La « Vue visiteur » s'activait sur l'article d'un autre membre dès qu'on y avait commenté, ce qui empêchait de modifier son propre commentaire.
+
 ## 1.5.1 — Édition directe
 
 ### Nouveautés

@@ -39,6 +39,7 @@ Modernise [gamekyo.com](https://www.gamekyo.com/) directement dans le navigateur
 - **Accueil** : diaporama avec titres, fil d'actus en cartes, tuiles « populaires » et « avis ».
 - **Articles** (news, vidéos, blogs, avis) : texte lisible, temps de lecture, barre de progression, vidéos adaptées à la largeur, tags en pastilles, spoilers révélés au clic, « Qui a aimé ? » à côté du bouton like.
 - **Commentaires et messages** : avatars ronds, bulles, formulaires modernisés.
+- **Commentaires** : actions Répondre / Modifier / Supprimer visibles, autocomplétion des `@pseudos`, champ vidé et défilement vers votre commentaire après l'envoi, émojis convertis en smileys Gamekyo.
 - **Listes** (news, blogs, vidéos, tests) : notes en badges colorés (vert ≥ 8, orange ≥ 5, rouge en dessous).
 - **Fiches jeu, profils, groupes, galeries** : cartes, grilles de vignettes.
 
