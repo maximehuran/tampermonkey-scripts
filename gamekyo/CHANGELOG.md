@@ -2,6 +2,12 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.8.0 — Répondre depuis la messagerie
+
+### Nouveautés
+- « Répondre au commentaire » depuis la messagerie : sur l'article, le champ de commentaire est pré-rempli avec `@pseudo` de l'expéditeur, le commentaire concerné est mis en évidence, et un bandeau « Réponse à @pseudo prête » mène directement au champ.
+- Les bandeaux d'information s'adaptent à la largeur de l'écran sur mobile.
+
 ## 1.7.2 — Bandeaux d'articles
 
 ### Corrections

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.7.2
+// @version      1.8.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -704,8 +704,10 @@ html.gk .comment-box.gk-new { animation: gk-flash 2.4s ease-out; }
 }
 .gk-mention-pop button.gk-on, .gk-mention-pop button:hover { background: var(--accent-soft); color: var(--accent); }
 .gk-mention-pop small { margin-left: auto; font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.gk-toast-action { cursor: pointer; background: var(--accent) !important; color: #fff !important; }
 .gk-toast {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9500; padding: 9px 16px; border-radius: 999px;
+  width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box; text-align: center;
   background: var(--text); color: var(--bg); font: 600 13px var(--font); box-shadow: var(--shadow-lg); animation: gk-fade .2s ease-out;
 }
 html.gk .comment-cross img { width: 16px; height: 16px; }
@@ -1859,6 +1861,15 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
           const href = a.getAttribute('href') || '';
           if (/ignore|delete|remove/i.test(href)) a.classList.add('gk-msg-danger');
           else if (i === 0) a.classList.add('gk-msg-primary');
+          // « Répondre au commentaire » : on retient l'expéditeur pour pré-remplir « @pseudo » sur l'article
+          const target = /confirm_requestrespond\([^)]*'([^']+\.html[^']*)'\s*\)/.exec(href);
+          const sender = $('.message-post-name a.member', box)?.textContent.trim();
+          if (target && sender) {
+            a.addEventListener('click', () => {
+              const url = new URL(target[1], location.origin);
+              sessionStorage.setItem('gk-reply', JSON.stringify({ path: url.pathname, hash: url.hash, name: sender, at: Date.now() }));
+            });
+          }
         });
       }
     });
@@ -1939,6 +1950,26 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
         setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
       }
     });
+  }
+
+  function applyPendingReply() {
+    let reply;
+    try { reply = JSON.parse(sessionStorage.getItem('gk-reply') || 'null'); } catch { reply = null; }
+    if (!reply || reply.path !== location.pathname || Date.now() - reply.at > 10 * 60 * 1000) return;
+    sessionStorage.removeItem('gk-reply');
+    const ta = $('.comment-form textarea[name="comment"]');
+    if (!ta) return;
+    const mention = `@${reply.name} `;
+    if (!ta.value.includes(mention.trim())) {
+      ta.value = mention + ta.value;
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const target = reply.hash && document.getElementById(reply.hash.slice(1));
+    if (target) {
+      target.classList.add('gk-new');
+      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+    toast(`Réponse à @${reply.name} prête : touchez ici pour l'écrire`, focusCommentForm, 6000);
   }
 
   document.addEventListener('click', (e) => {
@@ -2054,13 +2085,17 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   }
 
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, onClick = null, duration = 2600) {
     $('.gk-toast')?.remove();
     const t = h('<div class="gk-toast"></div>');
     t.textContent = msg;
+    if (onClick) {
+      t.classList.add('gk-toast-action');
+      t.addEventListener('click', () => { t.remove(); onClick(); });
+    }
     document.body.appendChild(t);
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.remove(), 2600);
+    toastTimer = setTimeout(() => t.remove(), duration);
   }
 
   document.addEventListener('input', (e) => {
@@ -2442,6 +2477,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     $$('.administration-menu-text a').forEach((a) => { if (a.getAttribute('href') === path) a.classList.add('gk-active'); });
     enhance();
     setupOwnerView();
+    applyPendingReply();
     enhanceSlideshow();
     enhanceTabs();
     enhanceReading();
