@@ -2,6 +2,16 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.7.1 — Recherche
+
+### Corrections
+- Page de recherche cassée : le pied de page se retrouvait au milieu de la mise en page (bloc HTML non fermé par le site) et les résultats étaient écrasés dans une colonne étroite.
+
+### Nouveautés
+- Onglets de recherche (Jeu, News, Vidéos, Membres, Blogs…) en pastilles, l'onglet actif en surbrillance.
+- Résultats en liste propre, avec avatars pour les membres et les blogs ; message « Aucun résultat » si la liste est vide.
+- La barre de recherche du haut reprend la requête en cours.
+
 ## 1.7.0 — Affichage des listes
 
 ### Nouveautés

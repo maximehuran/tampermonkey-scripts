@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.7.0
+// @version      1.7.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -1004,6 +1004,23 @@ html.gk .tab-fix, html.gk ul.tab > li {
 }
 html.gk .tab-fix { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff; }
 html.gk ul.tab { margin: 0; padding: 0; }
+/* Onglets de la recherche (Jeu, News, Vidéos…) */
+html.gk .box-frame-external > ul.tab { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+html.gk .box-frame-external > ul.tab > li { float: none; margin: 0; text-transform: capitalize; }
+html.gk ul.tab > li:not(:has(a)) { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff; cursor: default; }
+html.gk ul.tab > li > a { color: inherit !important; }
+html.gk ul.tab + .box-container-external { clear: both; }
+html.gk ul.tab ~ .box-container-external {
+  background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+}
+html.gk ul.tab ~ .box-container-external .management-member-box { padding: 12px 16px !important; }
+html.gk ul.tab ~ .box-container-external .management-member-box:first-child { border-top: 0 !important; }
+html.gk ul.tab ~ .box-container-external .management-member-name { font-size: 15px; color: var(--text); }
+html.gk ul.tab ~ .box-container-external .management-member-name a:not(.member) { color: var(--text) !important; font-weight: 600; }
+html.gk ul.tab ~ .box-container-external .management-member-name a:hover { color: var(--accent) !important; }
+html.gk ul.tab ~ .box-container-external .management-member-name img { height: 12px !important; width: auto !important; vertical-align: 1px; margin-right: 4px; border-radius: 2px; }
+html.gk ul.tab ~ .box-container-external .management-member-text a { font-weight: 600; color: var(--text-soft) !important; }
+html.gk ul.tab ~ .box-container-external > div:empty::before { content: "Aucun résultat."; display: block; padding: 24px; text-align: center; color: var(--muted); }
 html.gk #gallery-media-container, html.gk #profile-gallery-media-container, html.gk #media-bag-droppable {
   clear: both; background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius); padding: 14px !important;
 }
@@ -2401,7 +2418,26 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     const oldSearch = $('#search-form');
     if (oldSearch) oldSearch.closest('.box-frame')?.style.setProperty('display', 'none');
 
+    // Certaines pages (recherche…) oublient de fermer un bloc : le pied de page finit dans la grille
+    const main = $('#main-container');
+    const footer = $('#footer');
+    if (main && footer && main.contains(footer)) {
+      const footerText = $('.footer-text');
+      main.after(footer);
+      if (footerText && main.contains(footerText)) footer.after(footerText);
+    }
+
     buildTopbar();
+    // Page de recherche : la barre du haut reprend la requête en cours
+    if (/^\/search/.test(path)) {
+      const oldInput = $('#search-form input[name="search"]');
+      const q = new URLSearchParams(location.search).get('search')
+        || (oldInput && oldInput.value !== oldInput.defaultValue ? oldInput.value : '')
+        || sessionStorage.getItem('gk-last-search') || '';
+      const input = $('#gk-search input');
+      if (input && q) input.value = q;
+    }
+    $('#gk-search')?.addEventListener('submit', (e) => sessionStorage.setItem('gk-last-search', $('input', e.currentTarget).value.trim()));
     $$('.administration-menu-text a').forEach((a) => { if (a.getAttribute('href') === path) a.classList.add('gk-active'); });
     enhance();
     setupOwnerView();
