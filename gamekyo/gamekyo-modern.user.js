@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.7.1
+// @version      1.7.2
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -556,7 +556,8 @@ html.gk .box-frame:not(:has(> .box-title)):has(> .box-container > .article-conta
 html.gk .article-container > .article-information { padding: 0 32px; }
 html.gk .article-container > :not(.article-information) { margin-left: 32px; margin-right: 32px; }
 html.gk .game-header-image { margin: 0 -32px 4px; }
-html.gk .game-header-image img { width: 100%; height: auto; display: block; aspect-ratio: 16 / 7; object-fit: cover; }
+/* Les bandeaux « bigintro » du site sont très fins (~750×65) : on garde leurs proportions */
+html.gk .game-header-image img { width: 100%; height: auto !important; display: block; aspect-ratio: auto; max-height: 360px; object-fit: cover; }
 html.gk .big-title {
   font-size: 30px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; color: var(--text) !important;
   margin: 26px 0 16px !important; height: auto; overflow: visible;

@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.7.2 — Bandeaux d'articles
+
+### Corrections
+- Image d'en-tête des news et vidéos déformée : ces bandeaux très fins (environ 750 × 65 px) étaient agrandis et recadrés au format 16/7. Ils gardent maintenant leurs proportions d'origine.
+
 ## 1.7.1 — Recherche
 
 ### Corrections
