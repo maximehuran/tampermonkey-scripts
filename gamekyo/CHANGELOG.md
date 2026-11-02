@@ -2,6 +2,14 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.0 — Bandeau en fond du titre
+
+### Nouveautés
+- News et vidéos : le bandeau du jeu passe en fond du titre, avec un fondu vers la couleur de la page (clair ou sombre), au lieu d'occuper une bande au-dessus.
+
+### Corrections
+- Le bandeau d'en-tête n'était pas aligné sur les bords de la carte et affichait un liseré gris.
+
 ## 1.8.0 — Répondre depuis la messagerie
 
 ### Nouveautés

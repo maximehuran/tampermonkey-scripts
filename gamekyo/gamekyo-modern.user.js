@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.8.0
+// @version      1.9.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -558,6 +558,22 @@ html.gk .article-container > :not(.article-information) { margin-left: 32px; mar
 html.gk .game-header-image { margin: 0 -32px 4px; }
 /* Les bandeaux « bigintro » du site sont très fins (~750×65) : on garde leurs proportions */
 html.gk .game-header-image img { width: 100%; height: auto !important; display: block; aspect-ratio: auto; max-height: 360px; object-fit: cover; }
+/* Bandeau en fond du titre, fondu vers la couleur de la carte (thème clair ou sombre) */
+html.gk .gk-title-hero {
+  position: relative; isolation: isolate; overflow: hidden; margin: 0 -32px; padding: 34px 32px 6px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+html.gk .gk-title-hero > .game-header-image { position: absolute; inset: 0 0 3px; margin: 0; border: 0 !important; z-index: -2; }
+html.gk #column-1 > .box-frame > .box-container > .article-container > .article-information > .gk-title-hero { margin: -18px -20px 0; padding: 40px 20px 6px; }
+html.gk .gk-title-hero > .game-header-image img {
+  width: 100%; height: 100% !important; max-height: none; object-fit: cover; object-position: center 40%;
+  filter: blur(1.5px) saturate(1.15); transform: scale(1.04); opacity: .75;
+}
+html.gk .gk-title-hero::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 25%, transparent) 0%, color-mix(in srgb, var(--surface) 72%, transparent) 50%, var(--surface) 90%);
+}
+html.gk .gk-title-hero > .big-title { margin-top: 0 !important; text-shadow: 0 1px 12px color-mix(in srgb, var(--surface) 80%, transparent); }
 html.gk .big-title {
   font-size: 30px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; color: var(--text) !important;
   margin: 26px 0 16px !important; height: auto; overflow: visible;
@@ -1224,6 +1240,8 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   html.gk .article-container > .article-information { padding: 0 18px; }
   html.gk .article-container > :not(.article-information) { margin-left: 18px; margin-right: 18px; }
   html.gk .game-header-image { margin: 0 -18px 4px; }
+  html.gk .gk-title-hero { margin: 0 -18px; padding: 26px 18px 4px; }
+  html.gk #column-1 > .box-frame > .box-container > .article-container > .article-information > .gk-title-hero { margin: -18px -20px 0; padding: 32px 20px 4px; }
   html.gk .big-title { font-size: 24px; margin-top: 18px !important; }
   html.gk .article-container .medium-text { font-size: 16.5px; }
   html.gk #container { aspect-ratio: 16 / 9; }
@@ -2417,6 +2435,16 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
       badge.className = 'gk-reading-time';
       badge.textContent = `${minutes} min de lecture`;
       title.after(badge);
+    }
+    // Bandeau d'en-tête (news, vidéos) : passé en fond du titre plutôt qu'au-dessus
+    const banner = title && title.previousElementSibling?.matches('.game-header-image') ? title.previousElementSibling : null;
+    if (banner && !title.closest('.gk-title-hero')) {
+      const hero = document.createElement('div');
+      hero.className = 'gk-title-hero';
+      banner.before(hero);
+      hero.append(banner, title);
+      const badge = title.parentNode.parentNode.querySelector(':scope > .gk-reading-time');
+      if (badge && hero.nextElementSibling === badge) hero.append(badge);
     }
     const bar = document.createElement('div');
     bar.id = 'gk-progress';
