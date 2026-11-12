@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.1 — Espace après les vidéos
+
+### Corrections
+- Grand espace vide sous les vidéos YouTube / Dailymotion (et les citations) dans les articles : le saut de ligne en trop qui les suit est retiré.
+
 ## 1.9.0 — Bandeau en fond du titre
 
 ### Nouveautés

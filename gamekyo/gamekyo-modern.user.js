@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.9.0
+// @version      1.9.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -2426,6 +2426,12 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   function enhanceReading() {
     const article = $('#column-1 > .box-frame > .box-container > .article-container, #column-4 .articles-container > .article-container:only-child');
     if (!article) return;
+    // Les vidéos sont affichées en bloc : le premier <br> qui les suit ferait une ligne vide en trop
+    $$('.medium-text iframe, .medium-text blockquote, .medium-text #quote', article).forEach((el) => {
+      let next = el.nextSibling;
+      while (next && next.nodeType === 3 && !next.textContent.trim()) next = next.nextSibling;
+      if (next && next.nodeName === 'BR') next.remove();
+    });
     const text = $('.article-information .medium-text', article);
     const title = $('.big-title', article);
     if (text && title && !$('.gk-reading-time', article)) {
