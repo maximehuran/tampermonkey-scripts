@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.5 — Marge des listes d'articles
+
+### Corrections
+- Liste des articles d'un blog : les boutons « Ajouter un commentaire » et « Commentaires » touchaient le bas de la carte, ils ont maintenant une marge.
+
 ## 1.9.4 — Vidéos dans les listes d'articles
 
 ### Corrections

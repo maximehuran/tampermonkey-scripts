@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.9.4
+// @version      1.9.5
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -859,6 +859,8 @@ html.gk .special-thumb-media img, html.gk .medium-thumb-media img, html.gk .comm
   padding: 0 !important; margin: 0 !important; background-color: var(--surface-3) !important;
 }
 html.gk .articles-container { border: 0 !important; background: none !important; }
+/* Liste d'articles d'un blog : les boutons « Ajouter un commentaire / Commentaires » finissent la carte */
+html.gk #column-4 .articles-container > .article-container:not(:has(.comment-form)) { padding-bottom: 24px !important; }
 html.gk .avatar img, html.gk .big-avatar img { width: 100% !important; height: auto !important; border-radius: var(--radius-sm); border: 0 !important; display: block; }
 html.gk .avatar, html.gk .big-avatar, html.gk .profile-information-big-avatar, html.gk #profile-big-avatar {
   margin: 0 0 10px !important; padding: 0 !important; border: 0 !important; background: none !important; float: none !important; width: auto !important; height: auto !important;
