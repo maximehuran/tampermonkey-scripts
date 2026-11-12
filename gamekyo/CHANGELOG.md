@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.2 — Ses propres articles
+
+### Corrections
+- Sur ses propres articles de blog, la barre « Vue visiteur / Modifier » empêchait de reconnaître la page d'article : le grand espace sous les vidéos, le temps de lecture et la barre de progression ne s'appliquaient pas.
+
 ## 1.9.1 — Espace après les vidéos
 
 ### Corrections
