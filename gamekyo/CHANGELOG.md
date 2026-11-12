@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.3 — Espacement des vidéos
+
+### Corrections
+- Vidéos dans les articles : les sauts de ligne qui les entourent sont retirés, l'espacement est maintenant fixe (20 px) au-dessus et en dessous, quel que soit le navigateur.
+
 ## 1.9.2 — Ses propres articles
 
 ### Corrections

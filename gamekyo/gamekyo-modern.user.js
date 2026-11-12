@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.9.2
+// @version      1.9.3
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -591,7 +591,7 @@ html.gk .article-container .medium-text img { height: auto; border-radius: var(-
 html.gk .article-container .medium-text iframe { max-width: 100%; border-radius: var(--radius-sm); border: 0; }
 html.gk .article-container .medium-text iframe[src*="youtube"], html.gk .article-container .medium-text iframe[src*="dailymotion"],
 html.gk .article-container .medium-text iframe#youtube {
-  width: 100% !important; height: auto !important; aspect-ratio: 16 / 9; display: block; margin: 12px 0;
+  width: 100% !important; height: auto !important; aspect-ratio: 16 / 9; display: block; margin: 20px 0;
 }
 html.gk #player_hover { margin: 0 !important; }
 html.gk .article-container .medium-text blockquote, html.gk #quote {
@@ -2428,11 +2428,18 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     const blogArticles = $$('#column-4 .articles-container > .article-container');
     const article = $('#column-1 > .box-frame > .box-container > .article-container') || (blogArticles.length === 1 ? blogArticles[0] : null);
     if (!article) return;
-    // Les vidéos sont affichées en bloc : le premier <br> qui les suit ferait une ligne vide en trop
+    // Vidéos et citations sont affichées en bloc : les <br> qui les entourent feraient des lignes vides
+    // en trop, l'espacement est géré par leur marge
+    const isBlank = (n) => n && ((n.nodeType === 3 && !n.textContent.trim()) || n.id === 'player_hover');
     $$('.medium-text iframe, .medium-text blockquote, .medium-text #quote', article).forEach((el) => {
-      let next = el.nextSibling;
-      while (next && next.nodeType === 3 && !next.textContent.trim()) next = next.nextSibling;
-      if (next && next.nodeName === 'BR') next.remove();
+      for (const dir of ['nextSibling', 'previousSibling']) {
+        let n = el[dir];
+        while (n && (isBlank(n) || n.nodeName === 'BR')) {
+          const following = n[dir];
+          if (n.nodeName === 'BR') n.remove();
+          n = following;
+        }
+      }
     });
     const text = $('.article-information .medium-text', article);
     const title = $('.big-title', article);
