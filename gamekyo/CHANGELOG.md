@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.4 — Vidéos dans les listes d'articles
+
+### Corrections
+- Le grand espace autour des vidéos est aussi corrigé sur les listes d'articles (page d'un blog, etc.), pas seulement sur la page de l'article.
+
 ## 1.9.3 — Espacement des vidéos
 
 ### Corrections

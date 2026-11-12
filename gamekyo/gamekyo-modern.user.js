@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.9.3
+// @version      1.9.4
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -2423,15 +2423,11 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   /* ------------------------------------------------------------------ */
   /* Lecture : barre de progression + temps de lecture                  */
   /* ------------------------------------------------------------------ */
-  function enhanceReading() {
-    // Page d'un seul article (la barre « Vue visiteur » peut le précéder sur ses propres articles)
-    const blogArticles = $$('#column-4 .articles-container > .article-container');
-    const article = $('#column-1 > .box-frame > .box-container > .article-container') || (blogArticles.length === 1 ? blogArticles[0] : null);
-    if (!article) return;
-    // Vidéos et citations sont affichées en bloc : les <br> qui les entourent feraient des lignes vides
-    // en trop, l'espacement est géré par leur marge
+  // Vidéos et citations sont affichées en bloc : les <br> qui les entourent feraient des lignes vides
+  // en trop, l'espacement est géré par leur marge (pages d'article et listes d'articles)
+  function tidyArticleBlocks() {
     const isBlank = (n) => n && ((n.nodeType === 3 && !n.textContent.trim()) || n.id === 'player_hover');
-    $$('.medium-text iframe, .medium-text blockquote, .medium-text #quote', article).forEach((el) => {
+    $$('.article-container .medium-text iframe, .article-container .medium-text blockquote, .article-container .medium-text #quote').forEach((el) => {
       for (const dir of ['nextSibling', 'previousSibling']) {
         let n = el[dir];
         while (n && (isBlank(n) || n.nodeName === 'BR')) {
@@ -2441,6 +2437,13 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
         }
       }
     });
+  }
+
+  function enhanceReading() {
+    // Page d'un seul article (la barre « Vue visiteur » peut le précéder sur ses propres articles)
+    const blogArticles = $$('#column-4 .articles-container > .article-container');
+    const article = $('#column-1 > .box-frame > .box-container > .article-container') || (blogArticles.length === 1 ? blogArticles[0] : null);
+    if (!article) return;
     const text = $('.article-information .medium-text', article);
     const title = $('.big-title', article);
     if (text && title && !$('.gk-reading-time', article)) {
@@ -2523,6 +2526,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     applyPendingReply();
     enhanceSlideshow();
     enhanceTabs();
+    tidyArticleBlocks();
     enhanceReading();
     addBackToTop();
 
