@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.12.0
+// @version      1.12.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -2518,6 +2518,16 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   /* ------------------------------------------------------------------ */
   // Vidéos et citations sont affichées en bloc : les <br> qui les entourent feraient des lignes vides
   // en trop, l'espacement est géré par leur marge (pages d'article et listes d'articles)
+  // News et vidéos : les emplacements de pub (600 px réservés, même vides) passent sous la liste des news,
+  // pour que la fiche du jeu et la liste se suivent dans la colonne de gauche
+  function moveNewsSidebarAds() {
+    if (!root.classList.contains('gk-news-page')) return;
+    const fiche = $('#main-container > #column-2');
+    const list = $('#main-container > #column-0');
+    if (!fiche || !list) return;
+    [...fiche.children].filter((box) => box.querySelector('[id^="cGsas_"], [id^="sas_"]')).forEach((box) => list.appendChild(box));
+  }
+
   function tidyArticleBlocks() {
     const isBlank = (n) => n && ((n.nodeType === 3 && !n.textContent.trim()) || n.id === 'player_hover');
     $$('.article-container .medium-text iframe, .article-container .medium-text blockquote, .article-container .medium-text #quote').forEach((el) => {
@@ -2621,6 +2631,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     enhanceSlideshow();
     enhanceTabs();
     tidyArticleBlocks();
+    moveNewsSidebarAds();
     enhanceReading();
     addBackToTop();
 

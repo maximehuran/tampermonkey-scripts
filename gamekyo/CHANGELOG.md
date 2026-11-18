@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.12.1 — Colonne des news
+
+### Corrections
+- News et vidéos : grand espace entre la fiche du jeu et la liste des news, dû aux emplacements publicitaires (600 px réservés même vides). Ils passent maintenant sous la liste des news.
+
 ## 1.12.0 — Mise en page des news
 
 ### Changements
