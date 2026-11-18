@@ -2,6 +2,12 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.11.1 — Alerte de mise à jour fiabilisée
+
+### Corrections
+- L'alerte de mise à jour pouvait annoncer une ancienne version (1.9.6 au lieu de 1.11.0) : GitHub ne trie pas les releases par numéro de version. Le script retient maintenant la version la plus haute.
+- Après une mise à jour du script, la vérification est refaite tout de suite au lieu d'attendre 6 heures.
+
 ## 1.11.0 — Mode lecture
 
 ### Nouveautés

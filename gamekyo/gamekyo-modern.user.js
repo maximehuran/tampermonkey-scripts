@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.11.0
+// @version      1.11.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -1551,7 +1551,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   /* Panneau de réglages                                                */
   /* ------------------------------------------------------------------ */
   /* Alerte de nouvelle version (releases GitHub, vérifiées au plus toutes les 6 h) */
-  const RELEASES_API = 'https://api.github.com/repos/maximehuran/tampermonkey-scripts/releases?per_page=20';
+  const RELEASES_API = 'https://api.github.com/repos/maximehuran/tampermonkey-scripts/releases?per_page=100';
   const UPDATE_KEY = 'gk-modern-update';
   const isNewer = (a, b) => {
     const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
@@ -1563,18 +1563,23 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     if (!current || !settings.updateAlert || window.top !== window) return;
     let cache;
     try { cache = JSON.parse(localStorage.getItem(UPDATE_KEY) || 'null'); } catch { cache = null; }
-    if (!cache || Date.now() - cache.at > 6 * 3600 * 1000) {
+    // Nouvelle vérification toutes les 6 h, ou tout de suite si le script vient d'être mis à jour
+    if (!cache || cache.checkedWith !== current || Date.now() - cache.at > 6 * 3600 * 1000) {
       try {
         const res = await fetch(RELEASES_API);
         if (!res.ok) return;
         const releases = await res.json();
+        // L'API ne trie pas les releases par version (1.9.6 peut arriver avant 1.11.0) : on garde la plus haute
         let rel = null;
-        for (const r of releases) if (/^gamekyo-v\d/.test(r.tag_name) && !r.draft && !r.prerelease) { rel = r; break; }
+        for (const r of releases) {
+          if (!/^gamekyo-v\d/.test(r.tag_name) || r.draft || r.prerelease) continue;
+          if (!rel || isNewer(r.tag_name.replace('gamekyo-v', ''), rel.tag_name.replace('gamekyo-v', ''))) rel = r;
+        }
         if (!rel) return;
         let file = null;
         for (const a of rel.assets) if (/\.user\.js$/.test(a.name)) { file = a.browser_download_url; break; }
         cache = {
-          at: Date.now(), version: rel.tag_name.replace('gamekyo-v', ''), title: rel.name || '',
+          at: Date.now(), checkedWith: current, version: rel.tag_name.replace('gamekyo-v', ''), title: rel.name || '',
           file: file || 'https://raw.githubusercontent.com/maximehuran/tampermonkey-scripts/main/gamekyo/gamekyo-modern.user.js',
           notes: rel.html_url, dismissed: cache ? cache.dismissed : null,
         };
