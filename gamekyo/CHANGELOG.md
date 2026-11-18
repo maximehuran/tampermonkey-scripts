@@ -2,6 +2,13 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.11.0 — Mode lecture
+
+### Nouveautés
+- Réglages « Pages de lecture » : masquer la colonne de gauche et/ou de droite seulement sur les news, vidéos et articles de blog, sans toucher à l'accueil ni aux listes.
+- Bouton « Mode lecture » à côté du temps de lecture : masque les deux colonnes d'un clic (« Afficher les colonnes » pour revenir). Le choix est mémorisé.
+- En mode lecture, l'article est centré sur une largeur confortable (980 px), y compris pour les articles de blog.
+
 ## 1.10.0 — Alerte de mise à jour
 
 ### Nouveautés

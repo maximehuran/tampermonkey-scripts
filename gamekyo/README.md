@@ -66,7 +66,8 @@ Bouton ⚙︎ dans la barre du haut (dans le menu burger sur mobile). Tout s'app
 | Thème | Automatique, Clair, Sombre |
 | Logo | Classique (jaune/bleu), Minimal, D'origine (image du site) |
 | Taille du texte des articles | Normale, Grande, Très grande |
-| Colonne de gauche / de droite | Affichée ou masquée |
+| Colonne de gauche / de droite | Affichée ou masquée, sur tout le site |
+| Pages de lecture : colonne de gauche / de droite | Masquées seulement sur les news, vidéos et articles de blog. Le bouton « Mode lecture » sous le titre bascule les deux d'un clic |
 | Diaporama de l'accueil | Affiché ou masqué |
 | Affichage des listes de l'accueil | Complète, Moyenne, Condensée |
 | Rubriques du menu | Accueil, News, Blogs, Vidéos, Tests : chacune peut être masquée |
