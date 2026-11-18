@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.9.6 — Blogs sur tablette
+
+### Corrections
+- Blogs sur tablette (860 à 1240 px de large) : l'article était coincé dans une colonne étroite et la fiche du jeu prenait toute la largeur. L'article passe maintenant en pleine largeur, avec la fiche et le profil en dessous, côte à côte.
+
 ## 1.9.5 — Marge des listes d'articles
 
 ### Corrections

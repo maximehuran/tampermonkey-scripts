@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.9.5
+// @version      1.9.6
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -1193,12 +1193,15 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   html.gk #main-container > #column-1, html.gk #main-container > #column-4 { grid-column: 1; grid-row: 2; }
   html.gk #main-container > #column-2 { grid-column: 2; grid-row: 2 / span 2; }
   html.gk #main-container > #column-0 { grid-column: 1; grid-row: 3; }
-  html.gk #main-container:has(> #column-4) > #column-0 { grid-column: 2; grid-row: 2; }
+  /* Blogs : une seule colonne sur tablette, la fiche (colonne de gauche) passe sous l'article comme sur mobile */
+  html.gk #main-container:has(> #column-4) { grid-template-columns: minmax(0, 1fr); }
+  html.gk #main-container:has(> #column-4) > #main-container-header { order: 0; }
+  html.gk #main-container:has(> #column-4) > #column-4 { grid-column: 1; grid-row: auto; order: 1; }
+  html.gk #main-container:has(> #column-4) > #column-0 { grid-column: 1; grid-row: auto; order: 2; }
   html.gk #main-container:not(:has(> #main-container-header)) > #column-1 { grid-row: 1; }
   html.gk #main-container:not(:has(> #main-container-header)) > #column-2 { grid-row: 1 / span 2; }
   html.gk #main-container:not(:has(> #main-container-header)) > #column-0 { grid-row: 2; }
   html.gk #column-0 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 22px; align-items: start; }
-  html.gk #main-container:has(> #column-4) > #column-0 { display: block; }
   #gk-search { max-width: 260px; }
 }
 @media (max-width: 980px) {
