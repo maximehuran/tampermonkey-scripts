@@ -2,6 +2,13 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.13.0 — Modifier ses articles simplement
+
+### Nouveautés
+- Sur ses propres articles, le mode « Modifier » affiche un vrai formulaire à la place de l'article : titre, texte (barre d'outils, smileys, aperçu en direct), source (nom + lien) et tags, avec un seul bouton « Enregistrer » et « Annuler ». Plus de champs qui s'ouvrent et se ferment au clic, plus de décalage de la page.
+- Tags en pastilles : Entrée ou virgule pour ajouter, × pour retirer. Aussi sur la page de création d'article.
+- Page de création : nom et lien de la source sur une même ligne, lien complété automatiquement avec `https://`.
+
 ## 1.12.3 — Ajouter une source facilement
 
 ### Améliorations

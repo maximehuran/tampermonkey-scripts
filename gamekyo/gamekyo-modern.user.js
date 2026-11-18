@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.12.3
+// @version      1.13.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -1082,25 +1082,42 @@ html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: non
 html.gk .article-source .gk-editable { color: var(--muted); }
 /* Auteur : la source (texte brut, modifiable au clic) reste visible ; vide, elle propose de la remplir */
 html.gk .article-source #article-blogging-source-link-text.gk-editable { color: var(--accent); word-break: break-all; }
-/* Auteur, mode Modifier : formulaire de source (nom + lien + Enregistrer) à la place des champs du site */
-html.gk:not(.gk-read-mode) .article-source.gk-has-src-form { display: none !important; }
-html.gk-read-mode .gk-src-form { display: none; }
-.gk-src-form {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 6px; padding: 12px 14px;
-  border: 1px dashed color-mix(in srgb, var(--accent) 50%, var(--border)); border-radius: var(--radius-sm); background: var(--surface-2);
+/* Auteur, mode Modifier : formulaire complet (titre, texte, source, tags) à la place de l'article */
+html.gk.gk-editing .gk-owner-article > .article-information > :not(.gk-edit-panel),
+html.gk.gk-editing .gk-owner-article > .tag,
+html.gk.gk-editing .gk-owner-article > .medium-thumb-collection { display: none !important; }
+html.gk:not(.gk-editing) .gk-edit-panel { display: none; }
+.gk-edit-panel { display: flex; flex-direction: column; gap: 16px; padding: 22px 0 6px; font-family: var(--font); }
+.gk-edit-panel label.gk-edit-label, .gk-field-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-soft); margin-bottom: 6px; }
+.gk-edit-panel input[type="text"], .gk-edit-panel textarea, .gk-src-row input, .gk-chips {
+  width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font: 15px var(--font);
 }
-.gk-src-form > span { font-size: 13px; font-weight: 600; color: var(--text-soft); margin-right: 2px; }
-.gk-src-form input {
-  flex: 1 1 180px; min-width: 0; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--surface); color: var(--text); font: 14px var(--font);
+.gk-edit-panel textarea { min-height: 260px; line-height: 1.6; resize: vertical; }
+.gk-edit-panel input:focus, .gk-edit-panel textarea:focus, .gk-src-row input:focus, .gk-chips:focus-within {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
 }
-.gk-src-form input[name="link"] { flex-basis: 260px; }
-.gk-src-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.gk-src-form .gk-btn { padding: 7px 16px; }
-.gk-src-form .gk-btn:disabled { opacity: .5; cursor: default; }
-.gk-src-form small { flex-basis: 100%; font-size: 12px; color: var(--muted); }
-.gk-src-form small.gk-ok { color: var(--green); }
-.gk-src-form small.gk-err { color: var(--red); }
+.gk-edit-panel .gk-title-input { font-size: 20px; font-weight: 700; }
+.gk-src-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.gk-src-row input { flex: 1 1 200px; width: auto; min-width: 0; }
+.gk-src-row input.gk-src-link { flex-basis: 280px; }
+.gk-field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+.gk-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 8px; cursor: text; }
+.gk-chips input { flex: 1 1 140px; min-width: 120px; border: 0 !important; box-shadow: none !important; padding: 4px; background: none; color: var(--text); font: 14px var(--font); outline: none; }
+.gk-chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 600;
+}
+.gk-chip button { border: 0; background: none; color: inherit; cursor: pointer; font-size: 15px; line-height: 1; padding: 0 5px; border-radius: 999px; }
+.gk-chip button:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.gk-edit-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; position: sticky; bottom: 0; padding: 12px 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 5; }
+.gk-edit-actions .gk-btn:disabled { opacity: .5; cursor: default; }
+.gk-edit-status { font-size: 13px; color: var(--muted); }
+.gk-edit-status.gk-err { color: var(--red); }
+.gk-edit-toolbar { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+/* Page de création : nom et lien de la source sur une ligne, tags en pastilles */
+html.gk #add-article-form .gk-hidden-row { display: none !important; }
+html.gk #add-article-form #tags.gk-hidden-input { display: none !important; }
 
 /* Liste d'articles d'un blog : liens commentaires en boutons */
 html.gk .comment-number:has(> a) { font-size: 0 !important; gap: 8px; flex-wrap: wrap; text-transform: none; }
@@ -2450,60 +2467,197 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     });
   }
 
-  // Auteur : petit formulaire (nom, lien, Enregistrer) qui envoie la même requête que l'éditeur du site
-  function setupSourceForm(article) {
-    const box = $('.article-source', article);
-    const nameEl = box && $('#article-blogging-source-name-text.gk-editable', box);
-    const linkEl = box && $('#article-blogging-source-link-text.gk-editable', box);
-    const id = (article.id.match(/\d+/) || [])[0];
-    if (!nameEl || !linkEl || !id || $('.gk-src-form', article)) return;
-    const clean = (el) => (el.classList.contains('gk-src-empty') ? '' : el.textContent.trim());
-    const form = h(`
-      <form class="gk-src-form" novalidate>
-        <span>Source</span>
-        <input name="name" maxlength="64" placeholder="Nom (ex. : Nintendo, IGN…)" autocomplete="off">
-        <input name="link" type="text" inputmode="url" placeholder="Lien (https://…)" autocomplete="off">
-        <button type="submit" class="gk-btn">Enregistrer</button>
-        <small>Laissez vide pour ne pas afficher de source.</small>
-      </form>`);
-    const [nameIn, linkIn] = $$('input', form);
-    const btn = $('button', form);
-    const note = $('small', form);
-    const fill = () => { nameIn.value = clean(nameEl); linkIn.value = clean(linkEl); };
-    // Sans ça, l'éditeur du texte (ouvert par « Modifier ») se referme à l'appui, la page remonte et le clic rate le bouton
-    btn.addEventListener('mousedown', (e) => e.preventDefault());
-    fill();
-    const save = async (field, el, value) => {
-      const body = new URLSearchParams({ value, element_id: id, field_id: field, editorId: field });
-      const res = await fetch('/edit_in_place_action.php', {
-        method: 'POST', credentials: 'same-origin', body,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
-      });
-      if (!res.ok) throw new Error(res.status);
-      el.innerHTML = await res.text();
-    };
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      let link = linkIn.value.trim();
-      if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
-      linkIn.value = link;
-      const jobs = [];
-      if (nameIn.value.trim() !== clean(nameEl)) jobs.push(['article-blogging-source-name-text', nameEl, nameIn.value.trim()]);
-      if (link !== clean(linkEl)) jobs.push(['article-blogging-source-link-text', linkEl, link]);
-      if (!jobs.length) { note.className = ''; note.textContent = 'Aucun changement.'; return; }
-      btn.disabled = true; note.className = ''; note.textContent = 'Enregistrement…';
-      try {
-        for (const [field, el, value] of jobs) await save(field, el, value);
-        markEmptySource(box);
-        fill();
-        note.className = 'gk-ok'; note.textContent = 'Source enregistrée.';
-      } catch {
-        note.className = 'gk-err'; note.textContent = "Erreur pendant l'enregistrement, réessayez.";
-      }
-      btn.disabled = false;
+  // Envoi d'un champ comme l'éditeur sur place du site (mêmes remplacements de « & » et « ? »)
+  async function saveInPlace(field, value, elementId) {
+    const v = value.split('&').join('[[[@]]]').split('?').join('[[[*]]]');
+    const res = await fetch('/edit_in_place_action.php', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
+      body: `value=${encodeURIComponent(v)}&element_id=${elementId}&field_id=${field}&editorId=${field}`,
     });
-    box.classList.add('gk-has-src-form');
-    box.after(form);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.text();
+  }
+  const normalizeLink = (link) => { link = link.trim(); return link && !/^https?:\/\//i.test(link) ? 'https://' + link : link; };
+  const splitTags = (str) => str.split(/[,;]+/).map((t) => t.trim()).filter(Boolean);
+
+  // Champ de tags en pastilles : Entrée ou virgule pour ajouter, × ou Retour arrière pour retirer
+  function chipInput(initial, onChange = () => {}) {
+    const box = h('<div class="gk-chips"><input type="text" placeholder="Ajouter un tag…" autocomplete="off"></div>');
+    const input = $('input', box);
+    let tags = [];
+    const render = () => {
+      $$('.gk-chip', box).forEach((c) => c.remove());
+      tags.forEach((t, i) => {
+        const chip = h('<span class="gk-chip"><span></span><button type="button" title="Retirer">×</button></span>');
+        $('span', chip).textContent = t;
+        $('button', chip).addEventListener('click', () => { tags.splice(i, 1); render(); onChange(tags); });
+        box.insertBefore(chip, input);
+      });
+    };
+    const add = (str) => {
+      let changed = false;
+      splitTags(str).forEach((t) => { if (!tags.some((x) => x.toLowerCase() === t.toLowerCase())) { tags.push(t); changed = true; } });
+      if (changed) { render(); onChange(tags); }
+    };
+    const commit = () => { if (input.value.trim()) { add(input.value); } input.value = ''; };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',' || e.key === ';') { e.preventDefault(); commit(); }
+      else if (e.key === 'Backspace' && !input.value && tags.length) { tags.pop(); render(); onChange(tags); }
+    });
+    input.addEventListener('blur', commit);
+    input.addEventListener('paste', () => setTimeout(() => { if (/[,;]/.test(input.value)) commit(); }));
+    box.addEventListener('click', (e) => { if (e.target === box) input.focus(); });
+    add(initial.join(','));
+    return { el: box, get: () => { commit(); return tags.slice(); }, set: (list) => { tags = []; add(list.join(',')); render(); } };
+  }
+
+  // Barre d'outils BBCode pour le texte (comme sur la page de création)
+  function bbcodeToolbar(ta) {
+    const bar = h('<div class="form-textarea-field gk-edit-toolbar"></div>');
+    [['Gras', '[g]', '[/g]'], ['Italique', '[i]', '[/i]'], ['Souligner', '[s]', '[/s]'], ['Image', '[img]', '[/img]'], ['Lien', '[url]', '[/url]'],
+      ['Spoil', '[spoil]', '[/spoil]'], ['Citer', '[quote]', '[/quote]'], ['Vidéo', '[video]', '[/video]']].forEach(([label, open, close]) => {
+      const b = h('<div class="tagSelection"><a href="javascript:void(0);"></a></div>');
+      $('a', b).textContent = label;
+      $('a', b).addEventListener('mousedown', (e) => e.preventDefault());
+      $('a', b).addEventListener('click', () => wrapText(ta, open, close));
+      bar.appendChild(b);
+    });
+    buildSmileyPicker(ta, bar);
+    return bar;
+  }
+
+  // Auteur, mode « Modifier » : un vrai formulaire (titre, texte, source, tags) et un seul bouton Enregistrer
+  function setupEditPanel(article) {
+    const id = (article.id.match(/\d+/) || [])[0];
+    const titleEl = $('#article-blogging-title-text', article);
+    const textEl = $('#article-blogging-text-text', article);
+    const nameEl = $('#article-blogging-source-name-text', article);
+    const linkEl = $('#article-blogging-source-link-text', article);
+    const tagsIn = $('[id^="tag-form-article-"] input[name="tags"]', article);
+    const info = $('.article-information', article);
+    if (!id || !titleEl || !textEl || !info || $('.gk-edit-panel', article)) return null;
+    article.classList.add('gk-owner-article');
+    const clean = (el) => (!el || el.classList.contains('gk-src-empty') ? '' : el.textContent.trim());
+
+    const panel = h(`
+      <form class="gk-edit-panel" novalidate>
+        <div><label class="gk-edit-label">Titre</label><input type="text" class="gk-title-input" maxlength="64"></div>
+        <div class="form-textarea gk-edit-text"><label class="gk-edit-label">Texte de l'article</label></div>
+        <div><span class="gk-field-label">Source <small>(facultatif)</small></span>
+          <div class="gk-src-row"><input type="text" class="gk-src-name" maxlength="64" placeholder="Nom (ex. : Nintendo, IGN…)"><input type="text" class="gk-src-link" inputmode="url" placeholder="Lien (https://…)"></div>
+          <div class="gk-field-hint">Une seule source par article. Pour en citer d'autres, ajoutez leurs liens dans le texte.</div></div>
+        <div class="gk-edit-tags"><span class="gk-field-label">Tags</span><div class="gk-field-hint">Entrée ou virgule pour ajouter un tag.</div></div>
+        <div class="gk-edit-actions">
+          <button type="submit" class="gk-btn">Enregistrer</button>
+          <button type="button" class="gk-btn-ghost" data-action="cancel">Annuler</button>
+          <span class="gk-edit-status"></span>
+        </div>
+      </form>`);
+    const titleIn = $('.gk-title-input', panel);
+    const nameIn = $('.gk-src-name', panel);
+    const linkIn = $('.gk-src-link', panel);
+    const status = $('.gk-edit-status', panel);
+    const saveBtn = $('button[type="submit"]', panel);
+    const ta = document.createElement('textarea');
+    ta.rows = 14;
+    const textWrap = $('.gk-edit-text', panel);
+    const toolbar = bbcodeToolbar(ta);
+    textWrap.append(toolbar, ta);
+    const tags = tagsIn ? chipInput(splitTags(tagsIn.value)) : null;
+    if (tags) $('.gk-edit-tags .gk-field-label', panel).after(tags.el); else $('.gk-edit-tags', panel).remove();
+    info.prepend(panel);
+    attachEditor(ta, { inPlace: true });
+
+    let original = null;
+    const setStatus = (msg, err = false) => { status.textContent = msg; status.classList.toggle('gk-err', err); };
+    const load = async () => {
+      original = { title: titleEl.textContent.trim(), name: clean(nameEl), link: clean(linkEl), tags: tagsIn ? splitTags(tagsIn.value) : [], text: null };
+      titleIn.value = original.title; nameIn.value = original.name; linkIn.value = original.link;
+      if (tags) tags.set(original.tags);
+      saveBtn.disabled = true; ta.disabled = true; ta.value = ''; setStatus('Chargement du texte…');
+      try {
+        const res = await fetch(`/edit_in_place_diplay_text.php?type=blogtext&idcomment=${id}&editorId=article-blogging-text-text`, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(res.status);
+        const tmp = document.createElement('textarea');
+        tmp.innerHTML = (await res.text()).replace(/<br\s*\/?>/gi, '\n');
+        original.text = tmp.value.replace(/<\/?[a-z][^>]*>/gi, '');
+        ta.value = original.text; ta.disabled = false; saveBtn.disabled = false; setStatus('');
+        ta.dispatchEvent(new Event('input'));
+      } catch {
+        setStatus('Impossible de charger le texte, rechargez la page.', true);
+      }
+    };
+    panel.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!original || original.text === null) return;
+      const title = titleIn.value.trim();
+      if (!title || !ta.value.trim()) { setStatus('Le titre et le texte sont obligatoires.', true); return; }
+      linkIn.value = normalizeLink(linkIn.value);
+      const jobs = [];
+      if (title !== original.title) jobs.push(['article-blogging-title-text', title]);
+      if (ta.value !== original.text) jobs.push(['article-blogging-text-text', ta.value]);
+      if (nameIn.value.trim() !== original.name) jobs.push(['article-blogging-source-name-text', nameIn.value.trim()]);
+      if (linkIn.value !== original.link) jobs.push(['article-blogging-source-link-text', linkIn.value]);
+      const newTags = tags ? tags.get() : [];
+      const tagsChanged = tags && newTags.join(',').toLowerCase() !== original.tags.join(',').toLowerCase();
+      if (!jobs.length && !tagsChanged) { setStatus('Aucun changement.'); return; }
+      saveBtn.disabled = true; setStatus('Enregistrement…');
+      try {
+        for (const [field, value] of jobs) await saveInPlace(field, value, id);
+        if (tagsChanged) {
+          const res = await fetch('/edit_tags_action.php', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
+            body: new URLSearchParams({ tags: newTags.join(', '), element_id: id, element_type: 'article_blogging' }),
+          });
+          if (!res.ok || (await res.text()).trim() !== '1') throw new Error('tags');
+        }
+        sessionStorage.setItem('gk-saved', '1');
+        location.reload();
+      } catch {
+        saveBtn.disabled = false;
+        setStatus("Erreur pendant l'enregistrement : rechargez la page pour voir ce qui a été pris en compte.", true);
+      }
+    });
+    return { panel, load, cancel: () => setStatus('') };
+  }
+
+  // Page de création : source sur une ligne (nom + lien), lien complété avec https://, tags en pastilles
+  function enhanceCreateForm() {
+    const form = $('#add-article-form');
+    const name = form && $('#source_name', form);
+    const link = form && $('#source_link', form);
+    const tagsIn = form && $('#tags', form);
+    if (!form || form.dataset.gkCreate) return;
+    form.dataset.gkCreate = '1';
+    if (name && link) {
+      link.closest('.form-textarea')?.classList.add('gk-hidden-row');
+      const row = h('<div class="gk-src-row"></div>');
+      name.before(row);
+      row.append(name, link);
+      name.placeholder = 'Nom (ex. : Nintendo, IGN…)';
+      link.placeholder = 'Lien (https://…)';
+      link.setAttribute('inputmode', 'url');
+      const label = name.closest('.form-textarea')?.querySelector('.form-textarea-text');
+      if (label) label.textContent = 'Source (facultatif) :';
+      row.after(h('<div class="gk-field-hint">Une seule source par article. Pour en citer d\'autres, ajoutez leurs liens dans le texte.</div>'));
+    }
+    let chips = null;
+    if (tagsIn) {
+      chips = chipInput(splitTags(tagsIn.value), (list) => { tagsIn.value = list.join(', '); });
+      tagsIn.classList.add('gk-hidden-input');
+      tagsIn.after(chips.el);
+      const label = tagsIn.closest('.form-textarea')?.querySelector('.form-textarea-text');
+      if (label) label.lastChild.textContent = ' tags :';
+      chips.el.after(h('<div class="gk-field-hint">Entrée ou virgule pour ajouter un tag.</div>'));
+    }
+    // Avant l'envoi par le site : tag en cours de saisie pris en compte, lien complété
+    document.addEventListener('submit', (e) => {
+      if (e.target !== form) return;
+      if (chips) tagsIn.value = chips.get().join(', ');
+      if (link) link.value = normalizeLink(link.value);
+    }, true);
   }
 
   function setupOwnerView() {
@@ -2521,35 +2675,26 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
       </div>`);
     const label = $('.gk-owner-label small', bar);
     const titles = new Map();
+    // Formulaire complet sur la page d'un article (pas sur la liste du blog)
+    const edit = /^\/blog_article\d+/.test(location.pathname) ? setupEditPanel(editables[0].closest('.article-container')) : null;
 
     const setMode = (mode) => {
       const read = mode === 'read';
       root.classList.toggle('gk-read-mode', read);
+      root.classList.toggle('gk-editing', !read && !!edit);
       $$('button', bar).forEach((b) => b.classList.toggle('gk-on', b.dataset.mode === mode));
-      label.textContent = read ? '— affiché comme le voient les autres' : '— le titre et la source se modifient aussi au clic';
+      label.textContent = read ? '— affiché comme le voient les autres' : '— modifiez puis enregistrez';
       editables.forEach((el) => {
         if (!titles.has(el)) titles.set(el, el.title);
         el.title = read ? '' : titles.get(el);
       });
     };
-    // « Modifier » ouvre directement l'éditeur du texte de l'article
-    const openEditor = () => {
-      const article = editables[0].closest('.article-container');
-      const target = $('.medium-text .gk-editable', article) || $('.gk-editable', article);
-      if (!target || target.style.display === 'none' || $('.inplaceeditor-form', article)) return;
-      target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-      setTimeout(() => {
-        const form = $('.inplaceeditor-form', article);
-        if (!form) return;
-        const top = form.getBoundingClientRect().top + window.scrollY - $('#gk-topbar').offsetHeight - 70;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }, 50);
-    };
     bar.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-mode]');
       if (!b) return;
+      if (b.dataset.mode === 'edit' && root.classList.contains('gk-editing')) return;
       setMode(b.dataset.mode);
-      if (b.dataset.mode === 'edit') openEditor();
+      if (b.dataset.mode === 'edit' && edit) { edit.load(); edit.panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     });
 
     // En vue visiteur, un clic ne doit pas ouvrir l'éditeur du site (les liens restent cliquables)
@@ -2564,7 +2709,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
 
     const first = editables[0].closest('.article-container');
     first.parentElement.insertBefore(bar, first);
-    setupSourceForm(first);
+    $('[data-action="cancel"]', first)?.addEventListener('click', () => setMode('read'));
     setMode('read');
   }
 
@@ -2724,6 +2869,8 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     enhance();
     markEmptySource();
     setupOwnerView();
+    enhanceCreateForm();
+    if (sessionStorage.getItem('gk-saved')) { sessionStorage.removeItem('gk-saved'); toast('Modifications enregistrées', null, 4000); }
     applyPendingReply();
     enhanceSlideshow();
     enhanceTabs();
