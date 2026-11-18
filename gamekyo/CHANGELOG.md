@@ -2,6 +2,13 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.12.2 — Sources des articles
+
+### Corrections
+- Sur ses propres articles de blog, la source était invisible : le site l'affiche à l'auteur en texte modifiable (sans lien) et le script la masquait. Elle est maintenant visible en « Vue visiteur » (lien cliquable) comme en « Modifier ».
+- En « Modifier », une source vide propose « + nom de la source » et « + lien de la source » : un clic ouvre le champ pour l'ajouter après la publication, comme sur le Gamekyo classique.
+- Visiteurs : une source sans lien mais avec un nom s'affiche aussi.
+
 ## 1.12.1 — Colonne des news
 
 ### Corrections

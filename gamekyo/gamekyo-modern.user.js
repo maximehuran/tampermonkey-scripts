@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.12.1
+// @version      1.12.2
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -602,7 +602,8 @@ html.gk .article-container .medium-text blockquote, html.gk #quote {
 }
 html.gk .article-category { color: var(--orange); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin-top: -8px; }
 html.gk .article-source { font-size: 14px; color: var(--muted); }
-html.gk .article-source:not(:has(a[href]:not([href=""]))) { display: none; }
+/* Visiteurs : la source s'affiche si elle a un lien ou au moins un nom */
+html.gk .article-source:not(:has(.gk-editable)):not(:has(a[href]:not([href=""]))):not(:has(#article-blogging-source-name-text:not(:empty))) { display: none; }
 html.gk .article-details { text-align: left; font-size: 13px; color: var(--muted); margin-top: 14px !important; padding-top: 14px; border-top: 1px solid var(--border); }
 html.gk .tag { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 18px !important; margin-bottom: 0; }
 html.gk .tag img { width: 14px; height: 14px; }
@@ -1078,6 +1079,13 @@ html.gk .inplaceeditor-form .editor_field:focus { border-color: var(--accent) !i
 html.gk .inplaceeditor-form a { margin-left: 8px; color: var(--muted) !important; font-size: 13px; }
 html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: none !important; }
 html.gk .article-source .gk-editable { color: var(--muted); }
+/* Auteur : la source (texte brut, modifiable au clic) reste visible ; vide, elle propose de la remplir */
+html.gk .article-source #article-blogging-source-link-text.gk-editable { color: var(--accent); word-break: break-all; }
+html.gk:not(.gk-read-mode) .article-source .gk-editable:empty { display: inline-block; padding: 2px 10px; border: 1px dashed var(--border); border-radius: 999px; cursor: pointer; }
+html.gk:not(.gk-read-mode) .article-source .gk-editable:empty:hover { border-color: var(--accent); }
+html.gk:not(.gk-read-mode) #article-blogging-source-name-text.gk-editable:empty::before { content: "+ nom de la source"; color: var(--muted); font-weight: 400; }
+html.gk:not(.gk-read-mode) #article-blogging-source-link-text.gk-editable:empty::before { content: "+ lien de la source"; color: var(--muted); }
+html.gk:not(.gk-read-mode) .article-source:has(.gk-editable)::before { content: "Source : "; color: var(--muted); }
 
 /* Liste d'articles d'un blog : liens commentaires en boutons */
 html.gk .comment-number:has(> a) { font-size: 0 !important; gap: 8px; flex-wrap: wrap; text-transform: none; }
@@ -1109,7 +1117,8 @@ html.gk-read-mode .comment-box:not(.gk-mine) .comment-cross:has(a[href*="delete_
 html.gk-read-mode .comment-box:not(.gk-mine) .gk-act-delete { display: none; }
 html.gk-read-mode .tag:has([id^="tag-list"]:empty) { display: none !important; }
 html.gk-read-mode .tag span[onclick] { pointer-events: none; }
-html.gk-read-mode .article-source:has(.gk-editable):not(:has(a[href^="http"])) { display: none; }
+html.gk-read-mode .article-source:has(.gk-editable):not(:has(.gk-editable:not(:empty))) { display: none; }
+html.gk-read-mode #article-blogging-source-link-text.gk-editable:not(:empty) { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Barre d'outils BBCode */
 html.gk .form-textarea-field:has(> .tagSelection) {
@@ -2464,6 +2473,10 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     // En vue visiteur, un clic ne doit pas ouvrir l'éditeur du site (les liens restent cliquables)
     document.addEventListener('click', (e) => {
       if (!root.classList.contains('gk-read-mode') || e.target.closest('.comment-box')) return;
+      // Le lien de la source est du texte brut pour l'auteur : on l'ouvre comme le verrait un visiteur
+      const sourceLink = e.target.closest('#article-blogging-source-link-text');
+      const url = sourceLink && sourceLink.textContent.trim();
+      if (url && /^https?:\/\//i.test(url)) window.open(url, '_blank', 'noopener');
       if (e.target.closest('.gk-editable, .tag span[onclick]')) e.stopPropagation();
     }, true);
 
