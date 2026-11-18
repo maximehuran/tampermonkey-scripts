@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.11.1
+// @version      1.12.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -43,19 +43,18 @@
   /* ------------------------------------------------------------------ */
   const SETTINGS_KEY = 'gk-modern-settings';
   const NAV_KEYS = ['home', 'news', 'blog', 'video', 'review'];
-  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hideSlider: false, listView: 'full', hiddenNav: [], textSize: 'm', customCss: '', updateAlert: true, readHideLeft: false, readHideRight: false };
+  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hideSlider: false, listView: 'full', hiddenNav: [], textSize: 'm', customCss: '', updateAlert: true };
   let settings;
   try { settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') }; } catch { settings = { ...DEFAULTS }; }
   const saveSettings = () => localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 
   const customStyle = document.createElement('style');
   customStyle.id = 'gk-custom-css';
-  // Pages de lecture : news, vidéos, articles de blog (réglages de colonnes dédiés)
-  const isReadingPage = /^\/(?:(?:news|video)[a-z]*\d+_|blog_article\d+)/.test(location.pathname);
-  root.classList.toggle('gk-reading-page', isReadingPage);
+  // Page d'une news ou d'une vidéo : la colonne de droite (fiche du jeu…) passe à gauche
+  root.classList.toggle('gk-news-page', /^\/(?:news|video)[a-z]*\d+_/.test(location.pathname));
   const applySettings = () => {
-    root.classList.toggle('gk-hide-left', settings.hideLeft || (isReadingPage && settings.readHideLeft));
-    root.classList.toggle('gk-hide-right', settings.hideRight || (isReadingPage && settings.readHideRight));
+    root.classList.toggle('gk-hide-left', settings.hideLeft);
+    root.classList.toggle('gk-hide-right', settings.hideRight);
     root.classList.toggle('gk-hide-slider', settings.hideSlider);
     root.dataset.gkList = settings.listView;
     root.dataset.gkLogo = settings.logo;
@@ -1187,13 +1186,6 @@ html.gk .footer-text { text-align: center; color: var(--muted); font-size: 12.5p
 #gk-totop.gk-show { opacity: 1; pointer-events: auto; transform: none; }
 html.gk .gk-reading-time { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin: -6px 0 14px; }
 html.gk .gk-reading-time::before { content: "⏱"; }
-html.gk .gk-read-mode-btn {
-  margin-left: 6px; padding: 3px 11px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2);
-  color: var(--text-soft); font: 600 12px var(--font); cursor: pointer;
-}
-html.gk .gk-read-mode-btn:hover { border-color: var(--accent); color: var(--accent); }
-html.gk .gk-read-mode-btn.gk-on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-@media (max-width: 860px) { html.gk .gk-read-mode-btn { display: none; } }
 html.gk img.gk-fade { opacity: 0; transition: opacity .3s; }
 html.gk img.gk-fade.gk-loaded { opacity: 1; }
 
@@ -1366,7 +1358,6 @@ html.gk.gk-hide-left #main-container:has(> #column-4) { grid-template-columns: m
 html.gk.gk-hide-left #main-container > #column-4 { grid-column: 1; }
 html.gk.gk-hide-left.gk-hide-right #main-container:has(> #column-2) { grid-template-columns: minmax(0, 1fr); }
 html.gk.gk-hide-left.gk-hide-right #main-container > #column-1 { width: 100% !important; max-width: 980px; justify-self: center; }
-html.gk.gk-reading-page.gk-hide-left #main-container > #column-4 { width: 100% !important; max-width: 980px; justify-self: center; }
 @media (max-width: 1240px) {
   html.gk.gk-hide-right #main-container:has(> #column-2) { grid-template-columns: minmax(0, 1fr); }
   html.gk.gk-hide-left #main-container > #column-2 { grid-row: 2; }
@@ -1376,6 +1367,18 @@ html.gk.gk-reading-page.gk-hide-left #main-container > #column-4 { width: 100% !
   #gk-settings-btn { width: auto; height: auto; border-radius: var(--radius-sm); justify-content: flex-start; display: flex; gap: 12px; padding: 12px 14px; font: 600 16px var(--font); }
   #gk-settings-btn span { display: inline; }
   html.gk #main-container, html.gk.gk-hide-left #main-container, html.gk.gk-hide-right #main-container { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
+/* News et vidéos (ordinateur et tablette) : fiche du jeu puis liste des news à gauche, article à droite.
+   Sur mobile, les colonnes restent sous l'article. */
+@media (min-width: 861px) {
+  html.gk.gk-news-page #main-container:has(> #column-1):has(> #column-2) { grid-template-columns: 320px minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  html.gk.gk-news-page #main-container:has(> #column-1):has(> #column-2) > #column-2 { grid-column: 1; grid-row: 1; }
+  html.gk.gk-news-page #main-container:has(> #column-1):has(> #column-2) > #column-0 { grid-column: 1; grid-row: 2; display: block; }
+  html.gk.gk-news-page #main-container:has(> #column-1):has(> #column-2) > #column-1 { grid-column: 2; grid-row: 1 / span 2; }
+  html.gk.gk-news-page.gk-hide-right #main-container:has(> #column-1):has(> #column-2) > #column-0 { grid-row: 1; }
+  html.gk.gk-news-page.gk-hide-left.gk-hide-right #main-container:has(> #column-1):has(> #column-2) { grid-template-columns: minmax(0, 1fr); }
+  html.gk.gk-news-page.gk-hide-left.gk-hide-right #main-container:has(> #column-1):has(> #column-2) > #column-1 { grid-column: 1; grid-row: 1; }
 }
 
 /* ---------- Densité des listes de l'accueil ---------- */
@@ -1651,11 +1654,6 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
               ${toggle('hideLeft', 'Masquer la colonne de gauche', settings.hideLeft, 'Blogs, news liées, profil…')}
               ${toggle('hideRight', 'Masquer la colonne de droite', settings.hideRight, 'News populaires, avis, fiche du jeu, pubs…')}
               ${toggle('hideSlider', "Masquer le diaporama de l'accueil", settings.hideSlider, 'Les news commencent directement en haut de page')}
-              <div class="gk-field"><span class="gk-label">Pages de lecture (news, vidéos, articles de blog)</span>
-                <p class="gk-hint">Pour lire sans distraction, masquez les colonnes seulement sur ces pages. Le bouton « Mode lecture » sous le titre fait la même chose.</p>
-              </div>
-              ${toggle('readHideLeft', 'Masquer la colonne de gauche', settings.readHideLeft, 'Autres news et blogs, profil du blogueur…')}
-              ${toggle('readHideRight', 'Masquer la colonne de droite', settings.readHideRight, 'Fiche du jeu, news populaires, pubs…')}
               <div class="gk-field"><span class="gk-label">Affichage des listes de l'accueil</span>
                 ${seg('listView', settings.listView, [['full', 'Complète'], ['medium', 'Moyenne'], ['compact', 'Condensée']])}
                 <p class="gk-hint">Complète : grandes images et résumé. Moyenne : petites vignettes, résumé court. Condensée : titres seuls, pour tout voir d'un coup d'œil.</p>
@@ -2548,25 +2546,6 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
       badge.className = 'gk-reading-time';
       badge.appendChild(document.createElement('span')).textContent = `${minutes} min de lecture`;
       title.after(badge);
-      if (isReadingPage) {
-        // Mode lecture : masque/affiche les colonnes latérales des pages de lecture
-        const btn = h('<button type="button" class="gk-read-mode-btn"></button>');
-        const refresh = () => {
-          const on = settings.readHideLeft && settings.readHideRight;
-          btn.textContent = on ? 'Afficher les colonnes' : 'Mode lecture';
-          btn.classList.toggle('gk-on', on);
-          btn.title = on ? 'Réafficher les colonnes de gauche et de droite' : 'Masquer les colonnes de gauche et de droite';
-        };
-        btn.addEventListener('click', () => {
-          const on = !(settings.readHideLeft && settings.readHideRight);
-          Object.assign(settings, { readHideLeft: on, readHideRight: on });
-          saveSettings();
-          applySettings();
-          refresh();
-        });
-        refresh();
-        badge.appendChild(btn);
-      }
     }
     // Bandeau d'en-tête (news, vidéos) : passé en fond du titre plutôt qu'au-dessus
     const banner = title && title.previousElementSibling?.matches('.game-header-image') ? title.previousElementSibling : null;

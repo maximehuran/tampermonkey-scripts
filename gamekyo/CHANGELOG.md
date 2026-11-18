@@ -2,6 +2,12 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.12.0 — Mise en page des news
+
+### Changements
+- News et vidéos : la colonne de droite (fiche du jeu, news populaires…) passe à gauche, avec la liste des dernières news en dessous. L'article prend toute la largeur restante à droite. Sur mobile, ces blocs restent sous l'article.
+- Le mode lecture de la 1.11.0 (bouton et réglages « Pages de lecture ») est retiré au profit de cette mise en page. Les réglages « Masquer la colonne de gauche / de droite » restent disponibles pour tout le site.
+
 ## 1.11.1 — Alerte de mise à jour fiabilisée
 
 ### Corrections
