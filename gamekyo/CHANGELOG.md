@@ -2,6 +2,13 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.10.0 — Alerte de mise à jour
+
+### Nouveautés
+- Bandeau en haut de page quand une nouvelle version est disponible, avec un bouton « Mettre à jour » qui installe directement la nouvelle version et un lien vers les nouveautés.
+- La croix masque le bandeau jusqu'à la version suivante. Option « Prévenir des nouvelles versions » dans les Réglages (activée par défaut).
+- Vérification discrète : au plus une fois toutes les 6 heures, auprès des releases GitHub.
+
 ## 1.9.6 — Blogs sur tablette
 
 ### Corrections

@@ -21,6 +21,7 @@ Modernise [gamekyo.com](https://www.gamekyo.com/) directement dans le navigateur
 <p><img src="screenshots/mise-a-jour.jpg" alt="Mettre à jour le script dans Tampermonkey" width="700"></p>
 
 - **Automatiquement** : Tampermonkey vérifie les mises à jour **tous les jours** et les installe seul (réglages par défaut, visibles dans *Tableau de bord → Paramètres → Mise à jour des userscripts* : « Intervalle de vérification » et « Installation automatique »).
+- **Bandeau dans Gamekyo** : quand une nouvelle version sort, un bandeau en haut de page l'annonce, avec un bouton **Mettre à jour** (installation directe) et un lien vers les nouveautés. La croix le masque jusqu'à la version suivante ; il se désactive dans les Réglages.
 - **Tout de suite** : icône Tampermonkey → **Utilitaires** → **Vérifier les mises à jour d'userscripts**, puis recharger Gamekyo.
 - **Vérifier sa version** : icône Tampermonkey → **Gamekyo Modern ›**, ou le Tableau de bord. La dernière version est indiquée dans le [Changelog](CHANGELOG.md) et les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
@@ -69,6 +70,7 @@ Bouton ⚙︎ dans la barre du haut (dans le menu burger sur mobile). Tout s'app
 | Diaporama de l'accueil | Affiché ou masqué |
 | Affichage des listes de l'accueil | Complète, Moyenne, Condensée |
 | Rubriques du menu | Accueil, News, Blogs, Vidéos, Tests : chacune peut être masquée |
+| Prévenir des nouvelles versions | Bandeau en haut de page quand une mise à jour est disponible (activé par défaut) |
 | CSS personnalisé | Vos propres règles, appliquées après celles du script |
 
 **Dark Reader** : choisissez le thème « Clair » pour laisser Dark Reader gérer le sombre. En thème « Sombre », le script ajoute la balise `darkreader-lock` pour que Dark Reader n'assombrisse pas une seconde fois.

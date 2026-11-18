@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.9.6
+// @version      1.10.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -43,7 +43,7 @@
   /* ------------------------------------------------------------------ */
   const SETTINGS_KEY = 'gk-modern-settings';
   const NAV_KEYS = ['home', 'news', 'blog', 'video', 'review'];
-  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hideSlider: false, listView: 'full', hiddenNav: [], textSize: 'm', customCss: '' };
+  const DEFAULTS = { logo: 'classic', hideLeft: false, hideRight: false, hideSlider: false, listView: 'full', hiddenNav: [], textSize: 'm', customCss: '', updateAlert: true };
   let settings;
   try { settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') }; } catch { settings = { ...DEFAULTS }; }
   const saveSettings = () => localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -1318,6 +1318,18 @@ html.gk img.gk-fade.gk-loaded { opacity: 1; }
   width: 100% !important; min-height: 110px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace !important;
 }
 .gk-settings-foot { display: flex; justify-content: space-between; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--surface-2); }
+#gk-update { background: var(--accent-soft); border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); font-family: var(--font); }
+#gk-update .gk-update-inner {
+  max-width: 1400px; margin: 0 auto; padding: 10px 20px; box-sizing: border-box;
+  display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; font-size: 14px; color: var(--text);
+}
+#gk-update .gk-update-text { flex: 1; min-width: 200px; }
+#gk-update .gk-update-text small { color: var(--muted); margin-left: 4px; }
+#gk-update a.gk-btn { text-decoration: none; padding: 7px 16px; color: #fff !important; }
+#gk-update .gk-update-notes { color: var(--accent) !important; font-weight: 600; }
+#gk-update .gk-update-close { background: none; border: 0; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 6px; }
+#gk-update .gk-update-close:hover { color: var(--text); }
+html.gk #gk-update + #main-container, html.gk #gk-update ~ #main-container { margin-top: 16px !important; }
 .gk-btn, .gk-btn-ghost { border-radius: 999px; padding: 9px 18px; font: 700 14px var(--font); cursor: pointer; }
 .gk-btn { border: 0; background: var(--accent); color: #fff; }
 .gk-btn-ghost { border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); }
@@ -1527,6 +1539,62 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   /* ------------------------------------------------------------------ */
   /* Panneau de réglages                                                */
   /* ------------------------------------------------------------------ */
+  /* Alerte de nouvelle version (releases GitHub, vérifiées au plus toutes les 6 h) */
+  const RELEASES_API = 'https://api.github.com/repos/maximehuran/tampermonkey-scripts/releases?per_page=20';
+  const UPDATE_KEY = 'gk-modern-update';
+  const isNewer = (a, b) => {
+    const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
+    for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+    return false;
+  };
+  async function checkForUpdate() {
+    const current = typeof GM_info !== 'undefined' && GM_info.script && GM_info.script.version;
+    if (!current || !settings.updateAlert || window.top !== window) return;
+    let cache;
+    try { cache = JSON.parse(localStorage.getItem(UPDATE_KEY) || 'null'); } catch { cache = null; }
+    if (!cache || Date.now() - cache.at > 6 * 3600 * 1000) {
+      try {
+        const res = await fetch(RELEASES_API);
+        if (!res.ok) return;
+        const releases = await res.json();
+        let rel = null;
+        for (const r of releases) if (/^gamekyo-v\d/.test(r.tag_name) && !r.draft && !r.prerelease) { rel = r; break; }
+        if (!rel) return;
+        let file = null;
+        for (const a of rel.assets) if (/\.user\.js$/.test(a.name)) { file = a.browser_download_url; break; }
+        cache = {
+          at: Date.now(), version: rel.tag_name.replace('gamekyo-v', ''), title: rel.name || '',
+          file: file || 'https://raw.githubusercontent.com/maximehuran/tampermonkey-scripts/main/gamekyo/gamekyo-modern.user.js',
+          notes: rel.html_url, dismissed: cache ? cache.dismissed : null,
+        };
+        localStorage.setItem(UPDATE_KEY, JSON.stringify(cache));
+      } catch { return; }
+    }
+    if (!isNewer(cache.version, current) || cache.dismissed === cache.version || $('#gk-update')) return;
+    const subtitle = cache.title.split(/\s[—-]\s/)[1] || '';
+    const banner = h(`
+      <div id="gk-update" role="status">
+        <div class="gk-update-inner">
+          <span class="gk-update-text"><strong></strong><span></span><small></small></span>
+          <a class="gk-btn" target="_blank" rel="noopener">Mettre à jour</a>
+          <a class="gk-update-notes" target="_blank" rel="noopener">Nouveautés</a>
+          <button type="button" class="gk-update-close" title="Masquer jusqu'à la prochaine version">×</button>
+        </div>
+      </div>`);
+    $('.gk-update-text strong', banner).textContent = `Gamekyo Modern ${cache.version}`;
+    $('.gk-update-text span', banner).textContent = ` est disponible${subtitle ? ` : ${subtitle}` : ''}`;
+    $('.gk-update-text small', banner).textContent = `(vous avez la ${current})`;
+    $('a.gk-btn', banner).href = cache.file;
+    $('.gk-update-notes', banner).href = cache.notes;
+    $('.gk-update-close', banner).addEventListener('click', () => {
+      cache.dismissed = cache.version;
+      localStorage.setItem(UPDATE_KEY, JSON.stringify(cache));
+      banner.remove();
+    });
+    const topbar = $('#gk-topbar');
+    if (topbar) topbar.after(banner); else document.body.prepend(banner);
+  }
+
   function openSettings() {
     if ($('#gk-settings')) return;
     const navLabels = {};
@@ -1579,6 +1647,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
             </section>
             <section>
               <h3>Avancé</h3>
+              ${toggle('updateAlert', 'Prévenir des nouvelles versions', settings.updateAlert, 'Un bandeau en haut de page propose la mise à jour en un clic')}
               <div class="gk-field"><span class="gk-label">CSS personnalisé</span>
                 <textarea data-name="customCss" spellcheck="false" placeholder="/* Vos propres règles, appliquées en dernier. Exemple : */\n#gk-topbar { background: #6da2d5; }"></textarea>
                 <p class="gk-hint">Appliqué en direct et conservé dans ce navigateur.</p>
@@ -2515,6 +2584,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     }
 
     buildTopbar();
+    checkForUpdate();
     // Page de recherche : la barre du haut reprend la requête en cours
     if (/^\/search/.test(path)) {
       const oldInput = $('#search-form input[name="search"]');
