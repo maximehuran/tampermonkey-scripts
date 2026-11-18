@@ -2,6 +2,15 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.12.3 — Ajouter une source facilement
+
+### Améliorations
+- Sur ses propres articles, en mode « Modifier » : un petit formulaire « Source » (nom, lien, bouton Enregistrer) remplace les champs du site, qui s'ouvraient pré-remplis avec « ajouter une source », sans bouton, et enregistraient ce texte dès qu'on cliquait ailleurs.
+- Le lien reçoit automatiquement `https://` s'il manque. Un message confirme l'enregistrement.
+
+### Corrections
+- Les textes d'invite du site (« ajouter une source », « ajouter un lien source ») ne sont plus affichés comme une vraie source, ni pour l'auteur ni pour les visiteurs.
+
 ## 1.12.2 — Sources des articles
 
 ### Corrections

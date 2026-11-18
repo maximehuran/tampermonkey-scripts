@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.12.2
+// @version      1.12.3
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -603,7 +603,8 @@ html.gk .article-container .medium-text blockquote, html.gk #quote {
 html.gk .article-category { color: var(--orange); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin-top: -8px; }
 html.gk .article-source { font-size: 14px; color: var(--muted); }
 /* Visiteurs : la source s'affiche si elle a un lien ou au moins un nom */
-html.gk .article-source:not(:has(.gk-editable)):not(:has(a[href]:not([href=""]))):not(:has(#article-blogging-source-name-text:not(:empty))) { display: none; }
+html.gk .article-source:not(:has(.gk-editable)):not(:has(a[href]:not([href=""]))):not(:has(#article-blogging-source-name-text:not(:empty):not(.gk-src-empty))) { display: none; }
+html.gk .article-source .gk-src-empty { display: none; }
 html.gk .article-details { text-align: left; font-size: 13px; color: var(--muted); margin-top: 14px !important; padding-top: 14px; border-top: 1px solid var(--border); }
 html.gk .tag { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 18px !important; margin-bottom: 0; }
 html.gk .tag img { width: 14px; height: 14px; }
@@ -1081,11 +1082,25 @@ html.gk .inplaceeditor-saving { opacity: .6; font-style: italic; background: non
 html.gk .article-source .gk-editable { color: var(--muted); }
 /* Auteur : la source (texte brut, modifiable au clic) reste visible ; vide, elle propose de la remplir */
 html.gk .article-source #article-blogging-source-link-text.gk-editable { color: var(--accent); word-break: break-all; }
-html.gk:not(.gk-read-mode) .article-source .gk-editable:empty { display: inline-block; padding: 2px 10px; border: 1px dashed var(--border); border-radius: 999px; cursor: pointer; }
-html.gk:not(.gk-read-mode) .article-source .gk-editable:empty:hover { border-color: var(--accent); }
-html.gk:not(.gk-read-mode) #article-blogging-source-name-text.gk-editable:empty::before { content: "+ nom de la source"; color: var(--muted); font-weight: 400; }
-html.gk:not(.gk-read-mode) #article-blogging-source-link-text.gk-editable:empty::before { content: "+ lien de la source"; color: var(--muted); }
-html.gk:not(.gk-read-mode) .article-source:has(.gk-editable)::before { content: "Source : "; color: var(--muted); }
+/* Auteur, mode Modifier : formulaire de source (nom + lien + Enregistrer) à la place des champs du site */
+html.gk:not(.gk-read-mode) .article-source.gk-has-src-form { display: none !important; }
+html.gk-read-mode .gk-src-form { display: none; }
+.gk-src-form {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 6px; padding: 12px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 50%, var(--border)); border-radius: var(--radius-sm); background: var(--surface-2);
+}
+.gk-src-form > span { font-size: 13px; font-weight: 600; color: var(--text-soft); margin-right: 2px; }
+.gk-src-form input {
+  flex: 1 1 180px; min-width: 0; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font: 14px var(--font);
+}
+.gk-src-form input[name="link"] { flex-basis: 260px; }
+.gk-src-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.gk-src-form .gk-btn { padding: 7px 16px; }
+.gk-src-form .gk-btn:disabled { opacity: .5; cursor: default; }
+.gk-src-form small { flex-basis: 100%; font-size: 12px; color: var(--muted); }
+.gk-src-form small.gk-ok { color: var(--green); }
+.gk-src-form small.gk-err { color: var(--red); }
 
 /* Liste d'articles d'un blog : liens commentaires en boutons */
 html.gk .comment-number:has(> a) { font-size: 0 !important; gap: 8px; flex-wrap: wrap; text-transform: none; }
@@ -1117,8 +1132,10 @@ html.gk-read-mode .comment-box:not(.gk-mine) .comment-cross:has(a[href*="delete_
 html.gk-read-mode .comment-box:not(.gk-mine) .gk-act-delete { display: none; }
 html.gk-read-mode .tag:has([id^="tag-list"]:empty) { display: none !important; }
 html.gk-read-mode .tag span[onclick] { pointer-events: none; }
-html.gk-read-mode .article-source:has(.gk-editable):not(:has(.gk-editable:not(:empty))) { display: none; }
+html.gk-read-mode .article-source:has(.gk-editable):not(:has(.gk-editable:not(:empty):not(.gk-src-empty))) { display: none; }
 html.gk-read-mode #article-blogging-source-link-text.gk-editable:not(:empty) { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+html.gk-read-mode .article-source:has(#article-blogging-source-name-text.gk-src-empty) { font-size: 0; }
+html.gk-read-mode .article-source:has(#article-blogging-source-name-text.gk-src-empty) > * { font-size: 14px; }
 
 /* Barre d'outils BBCode */
 html.gk .form-textarea-field:has(> .tagSelection) {
@@ -2424,6 +2441,71 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
   /* ------------------------------------------------------------------ */
   /* Ses propres articles : « Vue visiteur » par défaut, édition à la demande */
   /* ------------------------------------------------------------------ */
+  // Textes d'invite affichés par le site quand la source est vide : ce n'est pas une vraie source
+  const SOURCE_PROMPTS = /^(ajouter une source|ajouter un lien source|add a source|add a source link)$/i;
+  function markEmptySource(ctx = document) {
+    $$('#article-blogging-source-name-text, #article-blogging-source-link-text', ctx).forEach((el) => {
+      const t = el.textContent.trim();
+      el.classList.toggle('gk-src-empty', !t || SOURCE_PROMPTS.test(t));
+    });
+  }
+
+  // Auteur : petit formulaire (nom, lien, Enregistrer) qui envoie la même requête que l'éditeur du site
+  function setupSourceForm(article) {
+    const box = $('.article-source', article);
+    const nameEl = box && $('#article-blogging-source-name-text.gk-editable', box);
+    const linkEl = box && $('#article-blogging-source-link-text.gk-editable', box);
+    const id = (article.id.match(/\d+/) || [])[0];
+    if (!nameEl || !linkEl || !id || $('.gk-src-form', article)) return;
+    const clean = (el) => (el.classList.contains('gk-src-empty') ? '' : el.textContent.trim());
+    const form = h(`
+      <form class="gk-src-form" novalidate>
+        <span>Source</span>
+        <input name="name" maxlength="64" placeholder="Nom (ex. : Nintendo, IGN…)" autocomplete="off">
+        <input name="link" type="text" inputmode="url" placeholder="Lien (https://…)" autocomplete="off">
+        <button type="submit" class="gk-btn">Enregistrer</button>
+        <small>Laissez vide pour ne pas afficher de source.</small>
+      </form>`);
+    const [nameIn, linkIn] = $$('input', form);
+    const btn = $('button', form);
+    const note = $('small', form);
+    const fill = () => { nameIn.value = clean(nameEl); linkIn.value = clean(linkEl); };
+    // Sans ça, l'éditeur du texte (ouvert par « Modifier ») se referme à l'appui, la page remonte et le clic rate le bouton
+    btn.addEventListener('mousedown', (e) => e.preventDefault());
+    fill();
+    const save = async (field, el, value) => {
+      const body = new URLSearchParams({ value, element_id: id, field_id: field, editorId: field });
+      const res = await fetch('/edit_in_place_action.php', {
+        method: 'POST', credentials: 'same-origin', body,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (!res.ok) throw new Error(res.status);
+      el.innerHTML = await res.text();
+    };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let link = linkIn.value.trim();
+      if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+      linkIn.value = link;
+      const jobs = [];
+      if (nameIn.value.trim() !== clean(nameEl)) jobs.push(['article-blogging-source-name-text', nameEl, nameIn.value.trim()]);
+      if (link !== clean(linkEl)) jobs.push(['article-blogging-source-link-text', linkEl, link]);
+      if (!jobs.length) { note.className = ''; note.textContent = 'Aucun changement.'; return; }
+      btn.disabled = true; note.className = ''; note.textContent = 'Enregistrement…';
+      try {
+        for (const [field, el, value] of jobs) await save(field, el, value);
+        markEmptySource(box);
+        fill();
+        note.className = 'gk-ok'; note.textContent = 'Source enregistrée.';
+      } catch {
+        note.className = 'gk-err'; note.textContent = "Erreur pendant l'enregistrement, réessayez.";
+      }
+      btn.disabled = false;
+    });
+    box.classList.add('gk-has-src-form');
+    box.after(form);
+  }
+
   function setupOwnerView() {
     // Seuls le titre / texte / source de l'article comptent (pas nos propres commentaires, modifiables eux aussi)
     const editables = $$('.article-container .gk-editable').filter((el) => !el.closest('.comment-box'));
@@ -2475,13 +2557,14 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
       if (!root.classList.contains('gk-read-mode') || e.target.closest('.comment-box')) return;
       // Le lien de la source est du texte brut pour l'auteur : on l'ouvre comme le verrait un visiteur
       const sourceLink = e.target.closest('#article-blogging-source-link-text');
-      const url = sourceLink && sourceLink.textContent.trim();
+      const url = sourceLink && !sourceLink.classList.contains('gk-src-empty') && sourceLink.textContent.trim();
       if (url && /^https?:\/\//i.test(url)) window.open(url, '_blank', 'noopener');
       if (e.target.closest('.gk-editable, .tag span[onclick]')) e.stopPropagation();
     }, true);
 
     const first = editables[0].closest('.article-container');
     first.parentElement.insertBefore(bar, first);
+    setupSourceForm(first);
     setMode('read');
   }
 
@@ -2639,6 +2722,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
     $('#gk-search')?.addEventListener('submit', (e) => sessionStorage.setItem('gk-last-search', $('input', e.currentTarget).value.trim()));
     $$('.administration-menu-text a').forEach((a) => { if (a.getAttribute('href') === path) a.classList.add('gk-active'); });
     enhance();
+    markEmptySource();
     setupOwnerView();
     applyPendingReply();
     enhanceSlideshow();
