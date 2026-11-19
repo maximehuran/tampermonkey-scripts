@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.13.0
+// @version      1.13.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -589,6 +589,8 @@ html.gk .article-container .article-text {
 }
 html.gk .article-container .medium-text a { color: var(--accent) !important; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); text-underline-offset: 3px; }
 html.gk .article-container .medium-text b, html.gk .article-container .medium-text strong { color: var(--text); }
+/* Couleur forcée par l'auteur dans un lien (souvent un bleu pur, illisible en sombre) : le lien garde la couleur du thème */
+html.gk .medium-text a font[color], html.gk .comment-text a font[color], html.gk .gk-preview-body a font[color] { color: inherit !important; }
 html.gk .article-container .medium-text img { height: auto; border-radius: var(--radius-sm); }
 html.gk .article-container .medium-text iframe { max-width: 100%; border-radius: var(--radius-sm); border: 0; }
 html.gk .article-container .medium-text iframe[src*="youtube"], html.gk .article-container .medium-text iframe[src*="dailymotion"],

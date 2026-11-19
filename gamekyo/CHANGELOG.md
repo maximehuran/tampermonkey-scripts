@@ -2,6 +2,11 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.13.1 — Liens colorés
+
+### Corrections
+- Liens illisibles en mode sombre quand l'auteur leur a forcé une couleur (souvent un bleu pur) : dans les articles et les commentaires, les liens gardent la couleur du thème.
+
 ## 1.13.0 — Modifier ses articles simplement
 
 ### Nouveautés
