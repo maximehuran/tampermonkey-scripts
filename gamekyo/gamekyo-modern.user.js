@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.13.1
+// @version      1.14.0
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -1145,6 +1145,17 @@ html.gk .comment-number > a:first-of-type::first-letter, html.gk .comment-number
 .gk-owner-bar .gk-seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .gk-owner-bar .gk-seg svg { width: 15px; height: 15px; }
 html.gk-read-mode :not(.comment-text) > .gk-editable { cursor: inherit; }
+html.gk .comment-text .gk-editable { cursor: inherit; }
+html.gk .comment-text .gk-editable:hover { background-color: transparent !important; box-shadow: none !important; }
+.gk-cedit { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.gk-cedit textarea {
+  width: 100%; box-sizing: border-box; min-height: 90px; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font: 15px/1.5 var(--font); resize: vertical;
+}
+.gk-cedit textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.gk-cedit-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.gk-cedit-actions .gk-btn, .gk-cedit-actions .gk-btn-ghost { padding: 7px 16px; }
+.gk-editing-comment .gk-act-edit { display: none; }
 html.gk-read-mode :not(.comment-text) > .gk-editable:hover { background-color: transparent !important; box-shadow: none !important; }
 html.gk-read-mode .big-title .gk-editable:hover::after { content: none; }
 html.gk-read-mode .comment-box:not(.gk-mine) .comment-cross:has(a[href*="delete_"]),
@@ -2081,6 +2092,13 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
 
       const reply = $('.comment-cross a[href*="wrapSelection"]', box);
       const del = $('.comment-cross a[href*="delete_comment"]', box);
+      // Commentaire tout juste ajouté : le site lui donne un identifiant « article_blogging-comment-… » que
+      // la suppression ne reconnaît pas (le serveur répond 1 sans rien supprimer) : on remet la forme habituelle
+      if (/^[a-z]+_[a-z_]+-comment-\d+$/.test(box.id)) {
+        const fixed = box.id.replace(/^([a-z_]+)-comment-/, (m, type) => `${type.replace(/_/g, '-')}-comment-`);
+        if (del) del.href = del.getAttribute('href').split(box.id).join(fixed);
+        box.id = fixed;
+      }
       const editable = $('.comment-text .gk-editable, .comment-text [title="click to edit"]', box);
       const info = $('.comment-information', box);
       if (info && (reply || del || editable)) {
@@ -2091,7 +2109,7 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
           actions.appendChild(b);
         };
         if (reply) add('gk-act-reply', ICONS.reply, 'Répondre', () => { reply.click(); focusCommentForm(); });
-        if (editable) add('gk-act-edit', ICONS.blog, 'Modifier', () => editable.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+        if (editable) add('gk-act-edit', ICONS.blog, 'Modifier', () => openCommentEditor(box, editable));
         if (del) add('gk-act-delete', ICONS.trash, 'Supprimer', () => del.click());
         info.appendChild(actions);
       }
@@ -2104,6 +2122,77 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
         ta.dispatchEvent(new Event('input', { bubbles: true }));
         box.classList.add('gk-new');
         setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+      }
+    });
+  }
+
+  // Ses commentaires : le clic sur le texte n'ouvre plus l'éditeur du site, seul « Modifier » le fait
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.comment-text .gk-editable, .comment-text [title="click to edit"]')) e.stopPropagation();
+  }, true);
+
+  // Le serveur renvoie « <br /><br />\n » pour chaque saut de ligne : on n'en garde qu'un
+  const cleanCommentHtml = (html) => html.replace(/\r/g, '')
+    .replace(/<br\s*\/?>\s*<br\s*\/?>\s*\n/gi, '<br>')
+    .replace(/(<br\s*\/?>)\s*\n/gi, '$1')
+    .replace(/\n/g, '<br>');
+
+  // Formulaire de modification d'un commentaire : reste ouvert jusqu'à Enregistrer ou Annuler
+  async function openCommentEditor(box, span) {
+    if ($('.gk-cedit', box)) { $('.gk-cedit textarea', box)?.focus(); return; }
+    const script = $('script', span.closest('.comment-text'))?.textContent || '';
+    const elementId = (/edit_in_place\(\s*'[^']+'\s*,\s*\d+\s*,[^,]*,[^,]*,\s*'(\d+)'/.exec(script) || [])[1] || (span.id.match(/\d+/) || [])[0];
+    const textUrl = (/'(\/edit_in_place_diplay_text\.php\?[^']+)'/.exec(script) || [])[1];
+    const form = h(`
+      <form class="gk-cedit" novalidate>
+        <textarea name="gk-cedit" rows="4"></textarea>
+        <div class="gk-cedit-actions">
+          <button type="submit" class="gk-btn">Enregistrer</button>
+          <button type="button" class="gk-btn-ghost" data-action="cancel">Annuler</button>
+          <span class="gk-edit-status"></span>
+        </div>
+      </form>`);
+    const ta = $('textarea', form);
+    const status = $('.gk-edit-status', form);
+    const saveBtn = $('button[type="submit"]', form);
+    const setStatus = (msg, err = false) => { status.textContent = msg; status.classList.toggle('gk-err', err); };
+    const close = () => { form.remove(); span.style.display = ''; box.classList.remove('gk-editing-comment'); };
+    span.style.display = 'none';
+    span.after(form);
+    box.classList.add('gk-editing-comment');
+    attachEditor(ta, { compact: true });
+    attachMentions(ta);
+    $('[data-action="cancel"]', form).addEventListener('click', close);
+    // Texte brut (BBCode) tel qu'enregistré, sinon le texte affiché
+    let original = span.innerText.trim();
+    saveBtn.disabled = true; ta.disabled = true; setStatus('Chargement…');
+    if (textUrl) {
+      try {
+        const res = await fetch(`${textUrl}&editorId=${span.id}`, { credentials: 'same-origin' });
+        if (res.ok) {
+          const tmp = document.createElement('textarea');
+          tmp.innerHTML = (await res.text()).replace(/<br\s*\/?>/gi, '\n');
+          original = tmp.value.replace(/<\/?[a-z][^>]*>/gi, '');
+        }
+      } catch { /* on garde le texte affiché */ }
+    }
+    ta.value = original; ta.disabled = false; saveBtn.disabled = false; setStatus('');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    ta.focus();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const value = ta.value.trim();
+      if (!value) { setStatus('Le commentaire ne peut pas être vide.', true); return; }
+      if (value === original.trim()) { close(); return; }
+      saveBtn.disabled = true; setStatus('Enregistrement…');
+      try {
+        const html = await saveInPlace(span.id, value, elementId);
+        span.innerHTML = cleanCommentHtml(html);
+        close();
+        toast('Commentaire modifié');
+      } catch {
+        saveBtn.disabled = false;
+        setStatus("Erreur pendant l'enregistrement, réessayez.", true);
       }
     });
   }

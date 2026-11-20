@@ -2,6 +2,18 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.14.0 — Modifier ses commentaires
+
+### Améliorations
+- Ses propres commentaires : un clic sur le texte n'ouvre plus l'éditeur. Seul le bouton « Modifier » ouvre un formulaire (texte, aperçu, @mentions) avec « Enregistrer » et « Annuler », qui reste ouvert jusqu'à l'un des deux.
+- Plus de double saut de ligne après une modification (le serveur renvoie deux `<br />` par ligne).
+
+### Corrections
+- « Supprimer » sur un commentaire qu'on vient de publier ne faisait rien côté serveur (identifiant temporaire du site) : il est maintenant bien supprimé, sans recharger la page.
+
+### Limite connue
+- Gamekyo n'enregistre pas les modifications de commentaires, même sans le script : le nouveau texte s'affiche, mais l'ancien revient au rechargement.
+
 ## 1.13.1 — Liens colorés
 
 ### Corrections
