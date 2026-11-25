@@ -2,6 +2,14 @@
 
 Toutes les versions sont aussi publiées dans les [Releases](https://github.com/maximehuran/tampermonkey-scripts/releases).
 
+## 1.14.1 — Commentaires animés et auto-refresh
+
+### Corrections
+- Un commentaire posté n'apparaissait plus (ni son animation), et les nouveaux commentaires de l'auto-refresh restaient invisibles : la 1.14.0 renommait leur identifiant, que les scripts d'animation du site utilisent. L'identifiant n'est plus touché ; la suppression d'un commentaire tout juste posté envoie directement le bon numéro au serveur.
+
+### Développement
+- Test de non-régression `tests/comments.test.mjs` (Playwright, Firefox, réponses serveur simulées).
+
 ## 1.14.0 — Modifier ses commentaires
 
 ### Améliorations

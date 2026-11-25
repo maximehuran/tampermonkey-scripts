@@ -75,6 +75,17 @@ Bouton ⚙︎ dans la barre du haut (dans le menu burger sur mobile). Tout s'app
 
 **Dark Reader** : choisissez le thème « Clair » pour laisser Dark Reader gérer le sombre. En thème « Sombre », le script ajoute la balise `darkreader-lock` pour que Dark Reader n'assombrisse pas une seconde fois.
 
+## Tests (développement)
+
+`tests/comments.test.mjs` vérifie les commentaires sur le vrai site, dans Firefox, script injecté comme Tampermonkey : apparition animée d'un commentaire posté, auto-refresh des nouveaux commentaires, suppression d'un commentaire tout juste posté, ouverture du formulaire « Modifier ». Les réponses du serveur sont simulées : rien n'est écrit sur Gamekyo.
+
+```bash
+cd gamekyo/tests && npm install && npx playwright install firefox
+GK_COOKIE='id_membre_cook=…; pass_membre_cook=…; PHPSESSID=…' npm test
+```
+
+À lancer avant chaque release. `GK_COOKIE` (session d'un membre connecté) ne doit jamais être écrit dans un fichier du dépôt.
+
 ## Limites connues
 
 - Le script s'appuie sur la structure HTML de Gamekyo : si le site change, certaines pages peuvent mal s'afficher.

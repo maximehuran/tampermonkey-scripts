@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gamekyo Modern
 // @namespace    https://www.gamekyo.com/
-// @version      1.14.0
+// @version      1.14.1
 // @description  Refonte moderne de Gamekyo : design épuré, mode sombre, responsive, images HD, lecture confortable.
 // @match        https://www.gamekyo.com/*
 // @match        http://www.gamekyo.com/*
@@ -2092,12 +2092,27 @@ html[data-gk-list="compact"] .tip-container-new .details { display: none; }
 
       const reply = $('.comment-cross a[href*="wrapSelection"]', box);
       const del = $('.comment-cross a[href*="delete_comment"]', box);
-      // Commentaire tout juste ajouté : le site lui donne un identifiant « article_blogging-comment-… » que
-      // la suppression ne reconnaît pas (le serveur répond 1 sans rien supprimer) : on remet la forme habituelle
-      if (/^[a-z]+_[a-z_]+-comment-\d+$/.test(box.id)) {
-        const fixed = box.id.replace(/^([a-z_]+)-comment-/, (m, type) => `${type.replace(/_/g, '-')}-comment-`);
-        if (del) del.href = del.getAttribute('href').split(box.id).join(fixed);
-        box.id = fixed;
+      // Commentaire tout juste ajouté (ou arrivé par l'auto-refresh) : le site lui donne l'identifiant
+      // « article_blogging-comment-… », que sa fonction de suppression ne reconnaît pas (le serveur répond 1
+      // sans rien supprimer). On NE renomme PAS l'élément : les scripts du site (Effect.Appear, couleur de
+      // fond) le cherchent sous ce nom. On envoie nous-mêmes le bon numéro à la suppression.
+      const fresh = /^([a-z]+_[a-z_]+)-comment-(\d+)$/.exec(box.id);
+      if (fresh && del) {
+        del.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          const q = (/delete_comment\([^,]+,\s*'[^']*',\s*'([^']*)'/.exec(del.getAttribute('href')) || [])[1] || 'Supprimer ce commentaire ?';
+          if (!confirm(q)) return;
+          fetch('/delete_comment_action.php', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest' },
+            body: `comment_id=${fresh[2]}&comment_type=${fresh[1]}`,
+          }).then((r) => r.text()).then((t) => {
+            if (t.trim() !== '1') throw new Error(t);
+            box.style.transition = 'opacity .3s'; box.style.opacity = '0';
+            setTimeout(() => box.remove(), 320);
+          }).catch(() => alert('error'));
+        }, true);
       }
       const editable = $('.comment-text .gk-editable, .comment-text [title="click to edit"]', box);
       const info = $('.comment-information', box);
